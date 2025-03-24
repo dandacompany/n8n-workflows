@@ -1,0 +1,643 @@
+{
+  "name": "영단어 플립카드 생성기",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0b9f4ad8-a465-4bd7-b30c-83876c22d0c9",
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/databases/1bd51d77094e805983d7fb1d300ae0e4/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"filter\": {\n    \"property\": \"상태\",      \n    \"status\": {           \n      \"equals\": \"생성 전\"  \n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "158dc93d-eb45-46df-bde4-8311ad6440ec",
+      "name": "영단어DB 조회",
+      "credentials": {
+        "notionApi": {
+          "id": "lCvwN1SVT0rmV27j",
+          "name": "Notion N8N API 인증키"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "36930642-71d2-469f-9ba0-7705482e581a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        660,
+        0
+      ],
+      "id": "9e4ee875-6047-466c-968e-c544d2f02144",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "wait"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"input\": {\n      \"prompt\": \"A close-up product shot of a [{{ $json.properties['단어'].title[0].text.content }}] on a pure white background, studio lighting, high-key photography, sharp focus, detailed texture, professional product photography, isolated object, commercial style, 8K resolution, photorealistic \",\n      \"go_fast\": true,\n      \"num_outputs\": 1, \n      \"aspect_ratio\": \"1:1\",\n      \"output_format\": \"webp\",\n      \"output_quality\": 80,\n      \"num_inference_steps\": 4\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        0
+      ],
+      "id": "c647486a-7ab5-4dbc-adf3-0012a5400700",
+      "name": "Flux 이미지 생성",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gqik8AxA5Kb77iIP",
+          "name": "Replicate API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.output[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        0
+      ],
+      "id": "e3f3dca9-74cb-4467-9be8-297d16c77e1d",
+      "name": "파일 다운로드"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "dante-n8n",
+        "fileName": "=flux/{{ $('Loop Over Items').item.json.properties['단어'].title[0].text.content }}.{{ $('Flux 이미지 생성').item.json.input.output_format }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        0
+      ],
+      "id": "f60909dc-56db-4326-aa88-0e3febf5d1ab",
+      "name": "AWS S3",
+      "credentials": {
+        "aws": {
+          "id": "ouekwwecu5kquugl",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c3c589b-4329-4520-a35c-fcd2f28b6050",
+              "name": "audioUrl",
+              "value": "=https://ssl.gstatic.com/dictionary/static/sounds/20200429/{{ $('Loop Over Items').item.json.properties['단어'].title[0].text.content }}--_gb_1.mp3  ",
+              "type": "string"
+            },
+            {
+              "id": "f1e0bdd0-b83b-405e-8e76-345bbbf7b0ce",
+              "name": "imageUrl",
+              "value": "={{ $json.Location }}",
+              "type": "string"
+            },
+            {
+              "id": "a9110292-ecdf-49f1-b3e0-7565b274c6fc",
+              "name": "word",
+              "value": "={{ $('Loop Over Items').item.json.properties['단어'].title[0].text.content }}",
+              "type": "string"
+            },
+            {
+              "id": "b96c4e1b-cedb-4c18-b642-2cea35c55a9a",
+              "name": "meaning",
+              "value": "={{ $('Loop Over Items').item.json.properties['의미'].rich_text[0].text.content }}",
+              "type": "string"
+            },
+            {
+              "id": "52ff926e-9daf-4fca-8bd1-e83cf9b2a81c",
+              "name": "blockId",
+              "value": "={{ $('Loop Over Items').item.json.properties['롤업'].rollup.array[0].rich_text[0].text.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1780,
+        0
+      ],
+      "id": "c78c9473-da64-4094-a621-293ad84afd31",
+      "name": "변수 설정"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.blockId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"embed\": {\n        \"url\": \"https://dandacompany.github.io/widgets/audio_word_card.html?width=200&word={{ $json.word }}&meaning={{ $json.meaning }}&audio={{ encodeURIComponent($json.audioUrl) }}&image={{ encodeURIComponent($json.imageUrl) }}\"\n    }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        0
+      ],
+      "id": "723b1667-542c-4262-8287-f652b7fe270a",
+      "name": "노션 플립카드 임베드",
+      "credentials": {
+        "notionApi": {
+          "id": "lCvwN1SVT0rmV27j",
+          "name": "Notion N8N API 인증키"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b861d705-5966-4f58-b597-9ca72cd4e84a",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "516b5ca5-68b4-4813-a62c-18ea2eb93156",
+      "name": "Webhook",
+      "webhookId": "b861d705-5966-4f58-b597-9ca72cd4e84a",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PTLtV6di8HDALxYp",
+          "name": "영단어 플립카드 생성 인증"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "상태|status",
+              "statusValue": "생성 완료"
+            },
+            {
+              "key": "이미지|files",
+              "fileUrls": {
+                "fileUrl": [
+                  {
+                    "name": "보기",
+                    "url": "={{ $('변수 설정').item.json.imageUrl }}"
+                  }
+                ]
+              }
+            },
+            {
+              "key": "오디오|files",
+              "fileUrls": {
+                "fileUrl": [
+                  {
+                    "name": "듣기",
+                    "url": "={{ $('변수 설정').item.json.audioUrl }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2220,
+        0
+      ],
+      "id": "eaac3187-f4f6-480a-b8ee-08439883fca3",
+      "name": "Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "lCvwN1SVT0rmV27j",
+          "name": "Notion N8N API 인증키"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d2e3188c-0e6d-494b-8f37-9ce4dc1cf2d9",
+              "leftValue": "={{ $json.properties['이미지'].files }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "array",
+                "operation": "lengthGt",
+                "rightType": "number"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -260
+      ],
+      "id": "26b81056-e0ad-4b2a-9d10-be6e105db9ad",
+      "name": "이미지 존재여부"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c3c589b-4329-4520-a35c-fcd2f28b6050",
+              "name": "audioUrl",
+              "value": "=https://ssl.gstatic.com/dictionary/static/sounds/20200429/{{ $('Loop Over Items').item.json.properties['단어'].title[0].text.content }}--_gb_1.mp3  ",
+              "type": "string"
+            },
+            {
+              "id": "f1e0bdd0-b83b-405e-8e76-345bbbf7b0ce",
+              "name": "imageUrl",
+              "value": "={{ $json.properties['이미지'].files[0].external.url }}",
+              "type": "string"
+            },
+            {
+              "id": "a9110292-ecdf-49f1-b3e0-7565b274c6fc",
+              "name": "word",
+              "value": "={{ $('Loop Over Items').item.json.properties['단어'].title[0].text.content }}",
+              "type": "string"
+            },
+            {
+              "id": "b96c4e1b-cedb-4c18-b642-2cea35c55a9a",
+              "name": "meaning",
+              "value": "={{ $('Loop Over Items').item.json.properties['의미'].rich_text[0].text.content }}",
+              "type": "string"
+            },
+            {
+              "id": "52ff926e-9daf-4fca-8bd1-e83cf9b2a81c",
+              "name": "blockId",
+              "value": "={{ $('Loop Over Items').item.json.properties['롤업'].rollup.array[0].rich_text[0].text.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1780,
+        -180
+      ],
+      "id": "f1b446e8-604a-4d95-998b-6a94bd4644d0",
+      "name": "변수 설정1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.blockId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"embed\": {\n        \"url\": \"https://dandacompany.github.io/widgets/audio_word_card.html?width=200&word={{ $json.word }}&meaning={{ $json.meaning }}&audio={{ encodeURIComponent($json.audioUrl) }}&image={{ encodeURIComponent($json.imageUrl) }}\"\n    }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        -180
+      ],
+      "id": "0d0f5c53-6517-49d7-bc2d-7f34a1c1cd24",
+      "name": "노션 플립카드 임베드1",
+      "credentials": {
+        "notionApi": {
+          "id": "lCvwN1SVT0rmV27j",
+          "name": "Notion N8N API 인증키"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "상태|status",
+              "statusValue": "생성 완료"
+            },
+            {
+              "key": "이미지|files",
+              "fileUrls": {
+                "fileUrl": [
+                  {
+                    "name": "보기",
+                    "url": "={{ $('변수 설정1').item.json.imageUrl }}"
+                  }
+                ]
+              }
+            },
+            {
+              "key": "오디오|files",
+              "fileUrls": {
+                "fileUrl": [
+                  {
+                    "name": "듣기",
+                    "url": "={{ $('변수 설정1').item.json.audioUrl }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2220,
+        -180
+      ],
+      "id": "50b253b0-1404-4179-a488-92df16d22f27",
+      "name": "Notion1",
+      "credentials": {
+        "notionApi": {
+          "id": "lCvwN1SVT0rmV27j",
+          "name": "Notion N8N API 인증키"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "영단어DB 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "영단어DB 조회": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "이미지 존재여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flux 이미지 생성": {
+      "main": [
+        [
+          {
+            "node": "파일 다운로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "파일 다운로드": {
+      "main": [
+        [
+          {
+            "node": "AWS S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3": {
+      "main": [
+        [
+          {
+            "node": "변수 설정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "변수 설정": {
+      "main": [
+        [
+          {
+            "node": "노션 플립카드 임베드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "노션 플립카드 임베드": {
+      "main": [
+        [
+          {
+            "node": "Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "영단어DB 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "이미지 존재여부": {
+      "main": [
+        [
+          {
+            "node": "변수 설정1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flux 이미지 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "변수 설정1": {
+      "main": [
+        [
+          {
+            "node": "노션 플립카드 임베드1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "노션 플립카드 임베드1": {
+      "main": [
+        [
+          {
+            "node": "Notion1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3b88140b-50eb-4900-a61a-7933daa3e46d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4cc791e45e72fa30b1828f187a8a7090595ec38399059937b2fd7b8f65e6192"
+  },
+  "id": "YUdpOSxpNbvCQOgH",
+  "tags": []
+}
