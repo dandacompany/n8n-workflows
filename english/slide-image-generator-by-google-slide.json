@@ -1,0 +1,247 @@
+{
+  "name": "구글슬라이드 단어카드생성",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://slides.googleapis.com/v1/presentations/{{ $json.presentationId }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSlidesOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": [\n    {\n      \"deleteText\": {\n        \"objectId\": \"{{ $json.objectId }}\",\n        \"textRange\": { \"type\": \"ALL\" }\n      }\n    },\n    {\n      \"insertText\": {\n        \"objectId\": \"{{ $json.objectId }}\",\n        \"insertionIndex\": 0,\n        \"text\": \"{{ $json.keyword }}\"\n      }\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "4357deff-6123-41d7-97a0-60a874ead359",
+      "name": "단어 변경",
+      "credentials": {
+        "googleSlidesOAuth2Api": {
+          "id": "gAV8CQqIuFiU0ENH",
+          "name": "Google Slides account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "dante-n8n",
+        "fileName": "=slides/{{ $('PPT 변수설정').item.json.presentationId }}/{{ $('PPT 변수설정').item.json.pageId }}/{{ $('PPT 변수설정').item.json.keyword.replace(/\\s+/g, '_').replace(/[^\\w_]/g, '') }}.png ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "fee55d73-1220-48d8-b71b-72da4d7cae65",
+      "name": "AWS S3",
+      "credentials": {
+        "aws": {
+          "id": "3nEXl04corjkHz4g",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "getThumbnail",
+        "presentationId": "={{ $('PPT 변수설정').item.json.presentationId }}",
+        "pageObjectId": "={{ $('PPT 변수설정').item.json.pageId }}",
+        "download": true
+      },
+      "type": "n8n-nodes-base.googleSlides",
+      "typeVersion": 2,
+      "position": [
+        820,
+        0
+      ],
+      "id": "61265b6c-310a-4138-ace6-98f7bf7f783e",
+      "name": "슬라이드 이미지 다운로드",
+      "credentials": {
+        "googleSlidesOAuth2Api": {
+          "id": "gAV8CQqIuFiU0ENH",
+          "name": "Google Slides account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "keyword"
+            },
+            {
+              "name": "pageId"
+            },
+            {
+              "name": "objectId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        0
+      ],
+      "id": "94d56201-ec43-4c73-ae71-10654a922d6d",
+      "name": "단어 변수설정"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0068bd6b-e28d-4a6f-a327-f533883d0d41",
+              "name": "image_url",
+              "value": "=https://d3v6z7pi3x0q53.cloudfront.net/slides/{{ $('PPT 변수설정').item.json.presentationId }}/{{ $('PPT 변수설정').item.json.pageId }}/{{ $('PPT 변수설정').item.json.keyword.replace(/\\s+/g, '_').replace(/[^\\w_]/g, '') }}.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1260,
+        0
+      ],
+      "id": "b9be71c6-60eb-46be-86a5-6f820fb3f42d",
+      "name": "이미지URL 출력"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18d1871c-3d75-492c-8c17-9c56264a441a",
+              "name": "keyword",
+              "value": "={{ $json.keyword }}",
+              "type": "string"
+            },
+            {
+              "id": "118c7351-ad2a-4c85-82f7-8c184034bca6",
+              "name": "presentationId",
+              "value": "1U-HeTyVEHcJnObto7JsnWvsoOmjhEuit-KGYeEPp43Y",
+              "type": "string"
+            },
+            {
+              "id": "fb199015-d900-4bc4-849a-65eceb44aefc",
+              "name": "pageId",
+              "value": "={{ $json.pageId }}",
+              "type": "string"
+            },
+            {
+              "id": "337c6654-d34b-4ee7-949e-faa4620ee86c",
+              "name": "objectId",
+              "value": "={{ $json.objectId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        0
+      ],
+      "id": "a7228044-008a-4bfb-9813-a585cf7e2eea",
+      "name": "PPT 변수설정"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "단어 변경": {
+      "main": [
+        [
+          {
+            "node": "슬라이드 이미지 다운로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "슬라이드 이미지 다운로드": {
+      "main": [
+        [
+          {
+            "node": "AWS S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3": {
+      "main": [
+        [
+          {
+            "node": "이미지URL 출력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "단어 변수설정": {
+      "main": [
+        [
+          {
+            "node": "PPT 변수설정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PPT 변수설정": {
+      "main": [
+        [
+          {
+            "node": "단어 변경",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a560b037-5ca5-47d2-bee7-6b0ce02f6ce4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e131a0b3d674cc8b6219599c9074a25bb97049aa77f632e3e3b9cee34a5caef6"
+  },
+  "id": "TQgbREzUhoW6PsRC",
+  "tags": [
+    {
+      "createdAt": "2025-03-19T00:58:37.383Z",
+      "updatedAt": "2025-03-19T00:58:37.383Z",
+      "id": "bI9TsEf2xPud61jF",
+      "name": "영어교육"
+    },
+    {
+      "createdAt": "2025-03-19T01:01:15.937Z",
+      "updatedAt": "2025-03-19T01:01:15.937Z",
+      "id": "jiVHMARWQpU9bC7I",
+      "name": "슬라이드"
+    }
+  ]
+}

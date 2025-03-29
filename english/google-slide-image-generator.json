@@ -1,0 +1,324 @@
+{
+  "name": "오디오 생성",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n \"cdn_base_url\" : \"https://d3v6z7pi3x0q53.cloudfront.net/\",\n\"audio_path\" : \"tts/{{ ($json.phrase ?? \"another place\").replace(/[^A-Za-z0-9 ]/g, '').replace(/\\s+/g, '_') }}.mp3\",\n\"phrase\": \"{{ $json.phrase ?? \"another place\" }}\",\n\"speed\": {{ $json.speed ?? 1.0 }},\n\"voice\" : \"{{ voice ?? \"fable\" }}\"\n}",
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        60,
+        40
+      ],
+      "id": "dc3dea41-8195-43b2-96af-4a32bb0a0482",
+      "name": "오디오 Base URL 변수 설정"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "phrase"
+            },
+            {
+              "name": "speed",
+              "type": "number"
+            },
+            {
+              "name": "voice"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        40
+      ],
+      "id": "a2430da1-c29c-4e4b-80bf-62e6149e5c58",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "dante-n8n",
+        "fileName": "={{ $('오디오 Base URL 변수 설정').item.json.audio_path }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        900,
+        -100
+      ],
+      "id": "0433abf3-679e-4941-bacc-36c03534e91c",
+      "name": "영어 표현 발음 저장",
+      "credentials": {
+        "aws": {
+          "id": "3nEXl04corjkHz4g",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b62489a1-3cc6-467b-8581-6e537c6a7280",
+              "name": "audio_url",
+              "value": "={{ $('오디오 Base URL 변수 설정').item.json.cdn_base_url }}{{ $('오디오 Base URL 변수 설정').item.json.audio_path }}",
+              "type": "string"
+            },
+            {
+              "id": "44998aa2-406c-425f-a5b4-017cf1774ab2",
+              "name": "new",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -100
+      ],
+      "id": "007e6da6-7085-4458-af22-696897d1026e",
+      "name": "오디오 URL 변수 출력"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.cdn_base_url }}{{ $json.audio_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        40
+      ],
+      "id": "b357edfa-bb92-4b62-86cf-281615184d02",
+      "name": "기존 오디오 확인",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cf9b4ac6-0769-45e6-8b9b-de6ba1470e46",
+              "leftValue": "={{ $json.error.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        40
+      ],
+      "id": "ddfbf681-8d1a-4277-8bf5-824103fe78ef",
+      "name": "신규생성 필요여부"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b62489a1-3cc6-467b-8581-6e537c6a7280",
+              "name": "audio_url",
+              "value": "={{ $('오디오 Base URL 변수 설정').item.json.cdn_base_url }}{{ $('오디오 Base URL 변수 설정').item.json.audio_path }}",
+              "type": "string"
+            },
+            {
+              "id": "7f04231a-c95e-4256-afab-4bf14e2f28b4",
+              "name": "new",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        140
+      ],
+      "id": "951a6d31-c0f4-4498-9f53-6e9835e41627",
+      "name": "오디오 URL 변수 출력1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/speech",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4o-mini-tts"
+            },
+            {
+              "name": "input",
+              "value": "={{ $('오디오 Base URL 변수 설정').item.json.phrase }}"
+            },
+            {
+              "name": "voice",
+              "value": "={{ $('오디오 Base URL 변수 설정').item.json.voice }}"
+            },
+            {
+              "name": "speed",
+              "value": "={{ $('오디오 Base URL 변수 설정').item.json.speed }}"
+            },
+            {
+              "name": "instrunctions",
+              "value": "Hang up and say like teacher."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        -100
+      ],
+      "id": "de99e56c-d74c-4fe9-915c-117b984f6c96",
+      "name": "OpenAI gpt-4o-mini-tts",
+      "credentials": {
+        "openAiApi": {
+          "id": "sr8FgdX5gzQ6wZD9",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "오디오 Base URL 변수 설정": {
+      "main": [
+        [
+          {
+            "node": "기존 오디오 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "오디오 Base URL 변수 설정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "영어 표현 발음 저장": {
+      "main": [
+        [
+          {
+            "node": "오디오 URL 변수 출력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "기존 오디오 확인": {
+      "main": [
+        [
+          {
+            "node": "신규생성 필요여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "신규생성 필요여부": {
+      "main": [
+        [
+          {
+            "node": "OpenAI gpt-4o-mini-tts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "오디오 URL 변수 출력1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI gpt-4o-mini-tts": {
+      "main": [
+        [
+          {
+            "node": "영어 표현 발음 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0add0b95-4048-4755-a196-dc412757e6a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e131a0b3d674cc8b6219599c9074a25bb97049aa77f632e3e3b9cee34a5caef6"
+  },
+  "id": "hV2qGaBm231yuRyG",
+  "tags": [
+    {
+      "createdAt": "2025-03-19T00:58:37.383Z",
+      "updatedAt": "2025-03-19T00:58:37.383Z",
+      "id": "bI9TsEf2xPud61jF",
+      "name": "영어교육"
+    },
+    {
+      "createdAt": "2025-03-19T00:59:45.591Z",
+      "updatedAt": "2025-03-19T00:59:45.591Z",
+      "id": "CrL1vZk6JSn4jG5D",
+      "name": "오디오"
+    }
+  ]
+}

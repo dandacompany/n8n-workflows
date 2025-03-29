@@ -1,0 +1,359 @@
+{
+  "name": "Flux 이미지 생성",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.output[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        -360
+      ],
+      "id": "57237b28-b534-4303-af04-d8869456d891",
+      "name": "이미지 다운로드"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "dante-n8n",
+        "fileName": "=flux/{{ $json.id }}.{{ $json.input.output_format }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        980,
+        -360
+      ],
+      "id": "26fd15fc-287f-48de-ad74-1e3119ed31ff",
+      "name": "이미지 저장",
+      "credentials": {
+        "aws": {
+          "id": "3nEXl04corjkHz4g",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "aspect_ratio"
+            },
+            {
+              "name": "prompt"
+            },
+            {
+              "name": "output_quality",
+              "type": "number"
+            },
+            {
+              "name": "checkExistsUrl"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        -360
+      ],
+      "id": "3fcb4e9d-7f37-4eef-a9e0-5b63debb7473",
+      "name": "변수 설정"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "wait"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"input\": {\n      \"prompt\": \"{{ $json.prompt }}\",\n      \"go_fast\": true,\n      \"num_outputs\": 1,\n      \"aspect_ratio\": \"{{ $json.aspect_ratio ?? \"1:1\" }}\",\n      \"output_format\": \"webp\",\n      \"output_quality\": {{ $json.output_quality ?? 80 }},\n      \"num_inference_steps\": 4\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        540,
+        -360
+      ],
+      "id": "1b02948a-9c1e-470b-8704-9ca91aec2288",
+      "name": "이미지 생성",
+      "credentials": {
+        "notionApi": {
+          "id": "FEo13JNZ2GtAIPQz",
+          "name": "Notion Dante Account"
+        },
+        "httpHeaderAuth": {
+          "id": "jkeQP9R9msFxKIOg",
+          "name": "Replicate API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7cc3a358-3d50-46ef-b13e-92d9d4e0f8a2",
+              "leftValue": "={{ $json.checkExistsUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        -360
+      ],
+      "id": "b90e3aa5-e896-42d5-9916-398ce5cee138",
+      "name": "이미지파일 체크 요청 여부"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.checkExistsUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        -520
+      ],
+      "id": "a75a4da7-4e09-40c9-bf88-e8dcdcba590b",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cb102296-a7ca-433b-bba2-891387beb9bf",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        -520
+      ],
+      "id": "075041af-87f9-4db1-bf5d-4e1ddd71708f",
+      "name": "파일 존재여부"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"image_path\": \"{{ $json.checkExistsUrl.replace('https://d3v6z7pi3x0q53.cloudfront.net', '')}}\",\n  \"image_url\": \"{{ $json.checkExistsUrl }}\",\n  \"new\" : false\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        -540
+      ],
+      "id": "1a0e9c6b-0029-458c-9d42-ea8fcf61fb8a",
+      "name": "이미지 변수 설정1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"image_path\": \"flux/{{ $('이미지 생성').item.json.id }}/{{ $('이미지 생성').item.json.input.output_format }}\",\n  \"image_url\": \"https://d3v6z7pi3x0q53.cloudfront.net/flux/{{ $('이미지 생성').item.json.id }}.{{ $('이미지 생성').item.json.input.output_format }}\",\n  \"new\" : true\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1180,
+        -360
+      ],
+      "id": "d7746ad6-7406-40be-b1c2-57c02691ecd8",
+      "name": "이미지 변수 설정2"
+    }
+  ],
+  "pinData": {
+    "변수 설정": [
+      {
+        "json": {
+          "aspect_ratio": "1:1",
+          "prompt": "beautiful scene",
+          "output_quality": 30,
+          "checkExistsUrl": "https://d3v6z7pi3x0q53.cloudfront.net/flux/26xgt3m32xrme0cnp91s9d4nb0.webp"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "이미지 다운로드": {
+      "main": [
+        [
+          {
+            "node": "이미지 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "이미지 저장": {
+      "main": [
+        [
+          {
+            "node": "이미지 변수 설정2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "변수 설정": {
+      "main": [
+        [
+          {
+            "node": "이미지파일 체크 요청 여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "이미지 생성": {
+      "main": [
+        [
+          {
+            "node": "이미지 다운로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "이미지파일 체크 요청 여부": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "이미지 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "파일 존재여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "파일 존재여부": {
+      "main": [
+        [
+          {
+            "node": "이미지 변수 설정1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "이미지 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "이미지 변수 설정2": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eb037a61-4ebd-45c0-b618-2a552816add1",
+  "meta": {
+    "instanceId": "e131a0b3d674cc8b6219599c9074a25bb97049aa77f632e3e3b9cee34a5caef6"
+  },
+  "id": "sd8kr2LYSRGnSQsc",
+  "tags": [
+    {
+      "createdAt": "2025-03-19T00:58:37.383Z",
+      "updatedAt": "2025-03-19T00:58:37.383Z",
+      "id": "bI9TsEf2xPud61jF",
+      "name": "영어교육"
+    },
+    {
+      "createdAt": "2025-03-19T00:58:51.304Z",
+      "updatedAt": "2025-03-19T00:58:51.304Z",
+      "id": "BTk3FhPoDQuFgyt3",
+      "name": "이미지"
+    }
+  ]
+}
