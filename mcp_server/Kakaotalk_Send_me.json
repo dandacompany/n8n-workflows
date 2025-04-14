@@ -1,0 +1,89 @@
+{
+  "name": "Kakaotalk Send me",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "text"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "762ea4a5-c57c-4501-81e2-c54f8bc3424f",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://kapi.kakao.com/v2/api/talk/memo/default/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded;charset=utf-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "template_object",
+              "value": "={     \n  \"object_type\": \"text\",     \n  \"text\": \"{{ $json.text.replaceAll(\"\\n\", \"\\\\n\") }}\",\n  \"link\": {\n        \"web_url\": \"https://developers.kakao.com\"\n    }\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "a97faea5-1bad-4806-bda8-7809c30222ed",
+      "name": "Send me",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "iALYwx2PgGFA4rNT",
+          "name": "Kakao credential"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b80fb83a-f1b2-44ad-b115-9a04106a1440",
+  "meta": {
+    "instanceId": "b7fa3a3917b9829d954f3c12bc6521c63cd47a0eeab0efcb35b6d409fe14841d"
+  },
+  "id": "dQ0PT1sd0IEGBz7h",
+  "tags": []
+}

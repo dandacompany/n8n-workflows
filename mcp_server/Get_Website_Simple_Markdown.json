@@ -1,0 +1,195 @@
+{
+  "name": "Get Website Simple Markdown",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -180,
+        -40
+      ],
+      "id": "806a80bf-5624-4d93-abe3-ec82adaed094",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.url }} 의 html 문서를 수집하고 처리해줘.\n",
+        "options": {
+          "systemMessage": "너는 웹페이지의 스크랩하는 전문가야. 불필요한 내용은 제외하고 마크다운으로 출력해야한다.\n불필요한 코드와 서식, 스타일, 아이콘, 이미지, 주석, 광고 링크, 관련없는 다른 사이트 링크, 네이게이션 메뉴 정보 는 제거하고,\n본문 컨텐츠의 모든 텍스트와 하위 링크 정보를 마크다운 형식으로 정리해줘. 본문 컨텐츠는 요약하지 말고 모두 가져온다.\n최초 html을 요청시, 사용할 도구는 Puppeteer이며, 이를 위 내용에 맞춰 정리한다.\n위 내용에 대한 마크다운 생성은 도구를 사용하는것이 아니라, 너가 직접 수행해."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        260,
+        -40
+      ],
+      "id": "a966ea37-ccaf-461d-9f95-975aed024929",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Session').item.json.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        200
+      ],
+      "id": "a3862a12-caa8-40b1-a3ea-17596f7e0dd9",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-puppeteer.puppeteerTool",
+      "typeVersion": 1,
+      "position": [
+        540,
+        200
+      ],
+      "id": "e388a762-2cfc-4273-87ff-67bc55ddeac8",
+      "name": "Puppeteer"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b93572e8-4942-472a-b7d4-55612e67201f",
+              "name": "id",
+              "value": "={{ $now.format('yyyyMMddHHMMss') }}",
+              "type": "string"
+            },
+            {
+              "id": "a7c613c5-c0c9-41d4-be0a-881f6745df9b",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        -40
+      ],
+      "id": "4c0744c3-bc45-4066-9cfd-84704ef6010c",
+      "name": "Session"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ],
+      "id": "33c8ce4e-6932-4e9d-a212-876d22385667",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ASOjpSmFWgwllUAT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://openai.com/news/?display=list"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Puppeteer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "292b3613-a4c9-4bec-baf6-8fbc8e686b52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7fa3a3917b9829d954f3c12bc6521c63cd47a0eeab0efcb35b6d409fe14841d"
+  },
+  "id": "c93671H9XemejOF3",
+  "tags": []
+}

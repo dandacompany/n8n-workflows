@@ -1,0 +1,315 @@
+{
+  "name": "Dante Labs AI News Maker",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "d678c751-f279-4b80-8de1-df2d8e41207d"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -20
+      ],
+      "id": "9aba370d-9fdf-4890-ac26-879fe6adc88f",
+      "name": "MCP AI News Server",
+      "webhookId": "d678c751-f279-4b80-8de1-df2d8e41207d"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "구글스프레드시트의 뉴스기사를 수집할 웹사이트 출처 리스트 내용을 읽어옵니다.",
+        "documentId": {
+          "__rl": true,
+          "value": "1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8",
+          "mode": "list",
+          "cachedResultName": "단테랩스 AI뉴스",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "TargetSite",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        100,
+        220
+      ],
+      "id": "e5e159bd-9cfa-491a-a9fe-1584a850717a",
+      "name": "Read DanteLabs New Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8",
+          "mode": "list",
+          "cachedResultName": "단테랩스 AI뉴스",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 375384726,
+          "mode": "list",
+          "cachedResultName": "Article",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YYfaAqtOImc9Bf6bCNrjKid7fnNsqchnsz6jmPl7PC8/edit#gid=375384726"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', `string`, 'string') }}",
+            "Summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', `string ( upper limit 200 character )`, 'string') }}",
+            "Link": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Link', `url string`, 'string') }}",
+            "Relevant Score": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Relevant_Score', `number (range 0 ~ 100)`, 'string') }}",
+            "Pupularity Score": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Pupularity_Score', `number (range 0 ~ 100)`, 'string') }}",
+            "Practical Score": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Practical_Score', `number (range 0 ~ 100)`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Relevant Score",
+              "displayName": "Relevant Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pupularity Score",
+              "displayName": "Pupularity Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Practical Score",
+              "displayName": "Practical Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        280,
+        220
+      ],
+      "id": "78e15228-11e9-4816-8fb4-7c60fe9970aa",
+      "name": "Append Row Dantelabs AI News Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Get_WebPage_Content_Tool",
+        "description": "웹사이트의 문서를 불필요한 코드를 제거하고, Markdown 형식으로 가져온다. 스타일과 서식은 없애고, 텍스트와 링크주소만 가져온다.",
+        "workflowId": {
+          "__rl": true,
+          "value": "c93671H9XemejOF3",
+          "mode": "list",
+          "cachedResultName": "Get Website Simple Markdown"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('url', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        460,
+        220
+      ],
+      "id": "ce4a439f-eb42-4f15-89bd-7a0edbcb8e0a",
+      "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "path": "eae4ed15-b31d-4acc-b7ee-27e299e13abf"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -20
+      ],
+      "id": "002c0935-529f-41a9-9030-625ddef9f317",
+      "name": "MCP Kakaotalk Server",
+      "webhookId": "eae4ed15-b31d-4acc-b7ee-27e299e13abf"
+    },
+    {
+      "parameters": {
+        "name": "Send_me_message",
+        "workflowId": {
+          "__rl": true,
+          "value": "dQ0PT1sd0IEGBz7h",
+          "mode": "list",
+          "cachedResultName": "Kakaotalk Send me"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('text', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        920,
+        240
+      ],
+      "id": "e11c1c9e-07e3-4c7b-964e-a93a17eaa5c7",
+      "name": "Send me kakaotalk"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read DanteLabs New Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP AI News Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Row Dantelabs AI News Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP AI News Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP AI News Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send me kakaotalk": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Kakaotalk Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "57c0cadb-dd95-4e04-bf9d-42a709dece08",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7fa3a3917b9829d954f3c12bc6521c63cd47a0eeab0efcb35b6d409fe14841d"
+  },
+  "id": "tUzHewXJ2pl9y27s",
+  "tags": []
+}
