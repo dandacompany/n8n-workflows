@@ -1,0 +1,559 @@
+{
+  "name": "상품 리뷰데이터 스크랩",
+  "nodes": [
+    {
+      "parameters": {
+        "command": "=curl 'https://www.coupang.com/vp/product/reviews?productId={{ $json.productNo }}&page=1&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true' \\\n  -H 'accept: */*' \\\n  -H 'accept-language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \\\n  -H 'cache-control: no-cache' \\\n  -b 'PCID=17134864285659092236847; MARKETID=17134864285659092236847; _fbp=fb.1.1713486429371.779150919; gd1=Y; delivery_toggle=false; cf_clearance=fy0d7gC.LwnSWWKi3u8AqtjjuYGJFRBcn1dDXm0jbic-1726618118-1.2.1.1-XG4FN2rOhgk_DItwEd7KkKTn874ZbKzdpavkO9uEk4xX8TTwse7DX8f6TSJV_adVFWvKFzhsA.mglW0Om0P6JbsXrLClwunSvhrr8kiRTkUddX0i4WtQzbWY4HYMTldEWdo.oSudlCRavaXcyrV5XUFDEpHfkUPbcOccki_d6c47T6FKu5gPekeU6dgFsrk.QfNEutCe3gPUyj2rQovb0gIJ.NFIZGOik0TbP5niC3l0SPe_altcEhGckSACEEmuyVvjDIf3u3hXqcJG_FrbACFlzaQDLUw_GxLwrV.UejoSgBVJDSggFIKZYTq.HTnIcpNdqzh1cEzTeqWSNVSkRd1JmXNXy54whwrKDRYYUn1cXC7JCq13SnIDHxxFnTgLdLd6GGC0QocRPY5l_A9gfg; rememberme=true; x-coupang-accept-language=ko-KR; x-coupang-target-market=KR; CPUSR_RL=JktEyDAxYdu0EFDRJhJff9VbZMnq000Sc%2FNei%2Fwwn%2Bm%2FETlHt0Z2s6%2FDkbZnXybRIOyWBYoJPBtjid3d2t6HLluNK5BSCDCFSIAfMXNQdFt%2FKwx7FWcAK5odfwllwKJwuqJSYVJIVxOimIkhBJ1%2FKrDX844ofNV%2BVJEU6f3%2B2kuNeLd%2Fu3IHRt0twYxTiogmc8a97XkY2QT09JjTUnB45YnG8IP5iIzoa%2Bt7DO9d0RsYfMpXySFRBQ%3D%3D; CSID=DUM_eNx520chtJPCNtm3eJp.0hf0gpmf; CUPT=DUM__NQ4Mugz38Xb5Gxv70iC-HnkCmZVfGSaSkIQpuxE4Ak; CT_LSID=be4c270062e2628b8748f56375be60c89a1df7bd63c601e426046e07a0263ec0; member_srl=35234972; CT_AT=eyJraWQiOiJjMjM3NDM1OC1lYzZlLTRkNjgtOTFlNS0zMjVkM2I4YjVkMmMiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJleHQiOnsiTFNJRCI6ImFkZjRhZTdjLTViMzItNGY5OC1hNTcwLWYxMWQxYmYzNzE4MiIsIk5PTkNFIjoiMWUwNjgyYmI0MWQwNGNkYTljYWNkOTZlZmI1NTYzMmQiLCJmaWF0IjoxLjc0Mzk3MjQ5NEU5LCJGQUdFIjoiNyJ9LCJzdWIiOiIzNTIzNDk3MiIsImF1ZCI6WyJodHRwczovL3d3dy5jb3VwYW5nLmNvbSIsIi0iXSwic2NwIjpbIm9wZW5pZCIsIm9mZmxpbmUiLCJjb3JlIiwiY29yZS1zaGFyZWQiLCJwYXkiXSwibmJmIjoxNzQ2MDE4MDIxLCJpc3MiOiJodHRwczovL21hdXRoLmNvdXBhbmcuY29tLyIsImV4cCI6MTc0NjAzMjQyMSwiaWF0IjoxNzQ2MDE4MDIxLCJqdGkiOiJjOTUzYjQ0OS1hZWNkLTQ0OWEtYjk2NC0xNDI3Mjc0YjEzNGEiLCJjbGllbnRfaWQiOiI0ZTJlMDJjOC03NDU2LTRiZDQtOWM3NS01Yjk4ZjIwNTgzODIifQ.Pk7Z8D1LEfn5OwqiL1UUTs3vTJM2yC4i_DTWxF0tfVmI7h5cuApFyXreOwVoniNfNZAWhrGKFEGNeVlQ7f3i0A; ILOGIN=Y; sid=9911e06e465540149365674665b6ad206336366c; searchKeyword=%EB%B0%B1%ED%8C%A9%7C%EB%82%A8%EC%84%B1%20%EC%8A%A4%ED%82%A8; searchKeywordType=%7B%22%EB%B0%B1%ED%8C%A9%22%3A0%7D%7C%7B%22%EB%82%A8%EC%84%B1%20%EC%8A%A4%ED%82%A8%22%3A0%7D; trac_src=0; trac_spec=0; trac_addtag=0; trac_ctag=\"\"; trac_lptag=\"\"; trac_itime=\"\"; trac_sid=\"\"; trac_appver=\"\"; _abck=944E3A428719982F5654F0EAD520FBC9~0~YAAQx+Q1F8ElKYaWAQAAP//5hg32UUWft+4VJpfoCqEvYMzh8XF9E87GNqfN7nfOXjZDknJQs4f22MJWlnTfPo+7VwXFwaU2eNb2IxDN9xFkbs36w0cWv5ga7azFygd4vB8y2giFDcVRIpLljH37jucWPyUVCF0/ht4XirzmQAdRotuiucgegBRogZyKDEpitpWbRX6oze51Vs3xVR8hDJBrkwPa6V4001lGaVg+BeE+1bJPGI1+9oTJAuj0MTKcQgWARcPPPFTRilIM4Ed7Tf8WjQV9VLQUm7rr5jsYLgG5o1zgVhSBpaA8GMPA3XUIxqmyh9knTo2Cq6PwtZqnmH7g22wp7CytkEGsU/VUmnp6+5nfq9lnHnYtOzEIYwqzENh71KTHfl45w8T8SMVE2VNVw1km/cVR4SHv5QBcCG8k7xJTciFj2gI1AbtXSgbJ+WEVW1GRkTkDwRwieF4qlgc+dpragvALZiaaUiEpsPzwwNAGNs/SxCDPdWmv8lGO59KfJ02uHphgT6QfHVns+NxD8vilpI16NRkIUA8kqLI2k1HBC8o2/iwDdpc2lgh8fQ4PNTHXE/Fb6H2VEBlKW/epY49WocUstrrQYJagcfeGK0a7DJ8RIh20dQmiVXPM+sUUymolB4BJAX89NpfKtLsMDSwqs/wmJEMsiPcZ7uKbkHTSEJDlBZHueAtKWpkDLgW748OXZw+aqpzz57SHz5nsCLjzJ0ru+hmmImmlsoBe4wmfN1dVdOvnz9pZyec=~-1~-1~-1; bm_sz=DCBA45E24BB9AE509E53E1D8D6E7730E~YAAQV+Q1F/oIJYaWAQAAPzH9hhsE6SRfmO9aJ7UZpo23WM84ppHzkklfxsOmlCby0nfFuqQfF1TJwJGagEAx5Zr3PSQdW78h91vgHeSap7WXxRBob4/vxRJAJn5Dd32Agld/zxkxf+uP3tHsMhBpvtSSJ76VbiSWZIac27kbQHAZk2A6CopqnTyI91g7oJZ8c9iyPfx8zFfYAE0zT+O1pK9hhJcCCY7XWOvwC/bxb+vw/sTT5/t51tsTZ4lVnplRz4M747GSMxOcMo5Q/lZXevCqPTXflZsGc7oMBS3ukgS7QsNydz9Nf7VSMn9CVUyeOv5+PTww0Xm9IZDfKcdcKqqSHlqNA3+QwrQd4uiUdlB+XbJPy0hLqnnhV6B6hQjji2/Mqfo2+aPLCvYQEUzCoCOBRGuf6LvAymY41+EdLnq+27iQtqxDT4W9cqt79NOn5WekWkNK8MfJZXptd2vkDp1+jQ==~4535600~3487539; cto_bundle=GqKP5F9tVm9UbTdrN25ZWiUyQjREWTUwRHNNcElEUW5GRTNTRFREZEk2WkF4TFB5bW1sRHVIbUU0WHR5dG4lMkYlMkJiN1d5WCUyQm5tdVJHWndRU25MdGhLT1FsRUVJeXpXRUt4M0xqdmJTblpNcXN4JTJGRDB1M0c2YVVBQyUyRmpxc09ZUk5QbFFxRDMlMkYyMXpGaWN2NjhlQzNPWXluNzhGcjZhZnJWc3c3OTFKRyUyRlNvYkpCemhFV3pGbjZmQm1sWnZkZWp4YmpySHpSJTJGWHJkREtQRXhocCUyRk5Qd1VuYnlYbFF3aEElM0QlM0Q; bm_lso=CFB7E7E89D2C71E50F45ADB3368826391AA5DDDFDDB8D26C10E214FCC04DDF68~YAAQV+Q1F0sKJYaWAQAAdzb9hgPkv2mXr8d3wYDM2hWLTKL0VG8yzRDopjAETqx1SJaGohOjP/nsGGHAfq+HsIAIdWgtaRQfNVrBpNKGBGxefFBejXZxopUoR5LQb6FmwnNcNW1gPcVvw7CQopMuxeuuqKzILsSiGpY2ojnk+yqe0apCq6b9g6T0ybnxNuguKSw8jo3RQyO2rKQ7fliOwwlnGiJngc76GgEEhBl+Zvbrlc/xZft7uZh60pAPsBp2KoeVwkw2Ib7hb6b0zDmU9lRzxMIzbJ9mIouLuFS+T81ZwzSD9hLV9JfMTsRnqdPXBwkxD9C4CQVNm13BSXz8Ovg/shdyE7bH6sgy0OG37LW/k0bHNBg8uvEBqdlSPjZwJ8sdKqG41bz7TPRrDnMZWEa84XbYpfolOzXM7LW03g3pfI5R8tuPfmiabDHZsk3ZXsLCSXb60rKlfMb+Fns=^1746021463896; bm_s=YAAQf9ojFxUuEXGWAQAAegn/hgOv5AbHprJTtddv+jdlJ4cVFDMURt2QFkO2UKNRdIgOTK7SCdi+uZ6CWi36uqKE62hzcOwdvNh6zvwHVbns1DqXqYwQiP7V1FsFRSXtslegpRjM2cCyRpfvnVaTdoEvhYxPL8vJkLBYQd0gANIFtsVBuOECPnbBsBLlTDC1YtC3DpRFA8dGyjpZxRC4ypaUqs7DIcwP0lwAisGXIXauzXaVxTDYRsXrnSSxrJ5swEkcmcbbOIodNu4la28iJsXDgWkxmNHgIPr2yEdxDZMuODIqgUsz7CWPBPwlKyizz3Mdj0R5L1P3eIBRVpIeVDkBZ+q5008jlFgHjdyEbnZswveB3OZ49zz/k/rTQcGIcOSxYXYNu2lPrTUcZE6KCiRTvYKudWelMElA5g9t1N5pCE09T29JD+LZ4Ar+Nvv9FghMRxdeAz+6Y7clKU2xpJei2/ay9vn8; bm_so=9A4855DB872EECC0FE459351F92B12BA07F7F8C829D23CF7CBF7D533D437304E~YAAQf9ojFxYuEXGWAQAAegn/hgM4UTSTmRf+tMofGUUda4keSuO3zsK2RNafEcjoAaXt5pR57cISVQIU3qZN4+PzrBKWjSUjEAFes+BA/g/jmkS0UavWJwim8x6ufVYiXGbV2EV2Y6sI08S1xLIz2EBmAG7GO7/pAhd9oDyD9xu2ZxSFfOA5ALuWFRVGillrbFMvuV/9MY3OHTKrVp8obGpsU20ILqCwF4GJdcDZ/k9BNeETZKLYmy62IZqOszcz8oyyRB4nXh9t2unxUY3B2qSKSo4h2wV3rpFlcq+Nf6VJDJoOow9e/a/lvaCqnrCHojOaXvdnskRA0ArJhCXt7f4DrcVB89VuxHxkJv4Eh/XK6VRD3VLVADMUAXbB/S4QKGFAe6oC2k5c5OA4oHFjkU5/RQVrvk7DV8yPyijaeMCemkeQavJSZESeigv1upvkYsxG5oJpyWdmnAtomcs=; baby-isWide=wide; web-session-id=dc3db872-6985-4fca-b391-bf308692fa54' \\\n  -H 'pragma: no-cache' \\\n  -H 'priority: u=1, i' \\\n  -H 'referer: https://www.coupang.com/vp/products/7856132617?itemId=21426210870&vendorItemId=88316309236&sourceType=srp_product_ads&clickEventId=096ca7f0-25cb-11f0-8f4f-95d41a1ed88b&korePlacement=15&koreSubPlacement=1&q=%EB%82%A8%EC%84%B1+%EC%8A%A4%ED%82%A8&itemsCount=36&searchId=51a6d0d92058873&rank=0&searchRank=0&isAddedCart=' \\\n  -H 'sec-ch-ua: \"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"' \\\n  -H 'sec-ch-ua-mobile: ?0' \\\n  -H 'sec-ch-ua-platform: \"macOS\"' \\\n  -H 'sec-fetch-dest: empty' \\\n  -H 'sec-fetch-mode: cors' \\\n  -H 'sec-fetch-site: same-origin' \\\n  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \\\n  -H 'x-requested-with;'"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        220,
+        20
+      ],
+      "id": "74b71fc4-3bc3-42a8-8dd3-1a47b091a7df",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "stdout",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "review",
+              "cssSelector": ".sdp-review__article__list",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1640,
+        20
+      ],
+      "id": "e65a5022-2258-41c1-ac65-cd9e45dfd509",
+      "name": "1차 파싱"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "review",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        20
+      ],
+      "id": "5847ad1e-37d0-4f8a-a0c1-6d935c9d571d",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "review",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "username",
+              "cssSelector": ".sdp-review__article__list__info__user__name"
+            },
+            {
+              "key": "productName",
+              "cssSelector": ".sdp-review__article__list__info__product-info__name"
+            },
+            {
+              "key": "rating",
+              "cssSelector": ".sdp-review__article__list__info__product-info__star-orange",
+              "returnValue": "attribute",
+              "attribute": "data-rating"
+            },
+            {
+              "key": "review",
+              "cssSelector": ".sdp-review__article__list__review__content"
+            },
+            {
+              "key": "survey",
+              "cssSelector": ".sdp-review__article__list__survey"
+            },
+            {
+              "key": "date",
+              "cssSelector": ".sdp-review__article__list__info__product-info__reg-date"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        20
+      ],
+      "id": "7dcf6f56-1462-42a2-ba95-73474e6b4eaa",
+      "name": "2차 파싱"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  data : $input.all().map(e => Object.values(e.json)),\n  productNo: $('Loop Over Items').first().json.productNo\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        20
+      ],
+      "id": "09cdfdaf-3fa8-49ab-8665-e98e0d88573f",
+      "name": "전처리"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1EAm3rTmvNl4ZRQkdYovUdfIYrrtseUr2dJlEihCISfI/values/{{ $json.productNo }}!A2:F2:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ {\"values\" : $json.data } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2520,
+        20
+      ],
+      "id": "1aa68cdd-7fc0-4e3a-8efe-cb8b577ab495",
+      "name": "리뷰 데이터 입력",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1EAm3rTmvNl4ZRQkdYovUdfIYrrtseUr2dJlEihCISfI/values/{{ $json.title }}!A1:F1:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ {\"values\" : [[\"username\", \"productName\",\t\"rating\",\t\"review\",\t\"survey\",\t\"date\"]] } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        -180
+      ],
+      "id": "efff43db-c213-4ef7-8b7c-d4bc41bc319d",
+      "name": "리뷰 데이터 헤더 입력",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "stdout",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "reviewCount",
+              "cssSelector": ".sdp-review__article__list__hidden-rating",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        20
+      ],
+      "id": "b23a0a56-05df-4658-a8b5-1bbdf5ea6b92",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const numbers = $input.first().json.reviewCount.match(/\\d+/g);\n\nconst sum = numbers.map(Number).reduce((a, b) => a+ b , 0);\n\nconst pageCount = parseInt(sum / 30) + 1;\n\nreturn {\n  pageNo : Array(pageCount).fill(1).map((_, i) => i + 1),\n  productNo : $('상품 번호 입력').first().json.productNo\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        20
+      ],
+      "id": "203e5573-8631-4c7a-afd0-adbf5397e416",
+      "name": "페이지수 계산"
+    },
+    {
+      "parameters": {
+        "executeOnce": false,
+        "command": "=curl 'https://www.coupang.com/vp/product/reviews?productId={{ $json.productNo }}&page=&size=30&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true' \\\n  -H 'accept: */*' \\\n  -H 'accept-language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \\\n  -H 'cache-control: no-cache' \\\n  -b 'PCID=17134864285659092236847; MARKETID=17134864285659092236847; _fbp=fb.1.1713486429371.779150919; gd1=Y; delivery_toggle=false; cf_clearance=fy0d7gC.LwnSWWKi3u8AqtjjuYGJFRBcn1dDXm0jbic-1726618118-1.2.1.1-XG4FN2rOhgk_DItwEd7KkKTn874ZbKzdpavkO9uEk4xX8TTwse7DX8f6TSJV_adVFWvKFzhsA.mglW0Om0P6JbsXrLClwunSvhrr8kiRTkUddX0i4WtQzbWY4HYMTldEWdo.oSudlCRavaXcyrV5XUFDEpHfkUPbcOccki_d6c47T6FKu5gPekeU6dgFsrk.QfNEutCe3gPUyj2rQovb0gIJ.NFIZGOik0TbP5niC3l0SPe_altcEhGckSACEEmuyVvjDIf3u3hXqcJG_FrbACFlzaQDLUw_GxLwrV.UejoSgBVJDSggFIKZYTq.HTnIcpNdqzh1cEzTeqWSNVSkRd1JmXNXy54whwrKDRYYUn1cXC7JCq13SnIDHxxFnTgLdLd6GGC0QocRPY5l_A9gfg; rememberme=true; x-coupang-accept-language=ko-KR; x-coupang-target-market=KR; CPUSR_RL=JktEyDAxYdu0EFDRJhJff9VbZMnq000Sc%2FNei%2Fwwn%2Bm%2FETlHt0Z2s6%2FDkbZnXybRIOyWBYoJPBtjid3d2t6HLluNK5BSCDCFSIAfMXNQdFt%2FKwx7FWcAK5odfwllwKJwuqJSYVJIVxOimIkhBJ1%2FKrDX844ofNV%2BVJEU6f3%2B2kuNeLd%2Fu3IHRt0twYxTiogmc8a97XkY2QT09JjTUnB45YnG8IP5iIzoa%2Bt7DO9d0RsYfMpXySFRBQ%3D%3D; CSID=DUM_eNx520chtJPCNtm3eJp.0hf0gpmf; CUPT=DUM__NQ4Mugz38Xb5Gxv70iC-HnkCmZVfGSaSkIQpuxE4Ak; CT_LSID=be4c270062e2628b8748f56375be60c89a1df7bd63c601e426046e07a0263ec0; member_srl=35234972; CT_AT=eyJraWQiOiJjMjM3NDM1OC1lYzZlLTRkNjgtOTFlNS0zMjVkM2I4YjVkMmMiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJleHQiOnsiTFNJRCI6ImFkZjRhZTdjLTViMzItNGY5OC1hNTcwLWYxMWQxYmYzNzE4MiIsIk5PTkNFIjoiMWUwNjgyYmI0MWQwNGNkYTljYWNkOTZlZmI1NTYzMmQiLCJmaWF0IjoxLjc0Mzk3MjQ5NEU5LCJGQUdFIjoiNyJ9LCJzdWIiOiIzNTIzNDk3MiIsImF1ZCI6WyJodHRwczovL3d3dy5jb3VwYW5nLmNvbSIsIi0iXSwic2NwIjpbIm9wZW5pZCIsIm9mZmxpbmUiLCJjb3JlIiwiY29yZS1zaGFyZWQiLCJwYXkiXSwibmJmIjoxNzQ2MDE4MDIxLCJpc3MiOiJodHRwczovL21hdXRoLmNvdXBhbmcuY29tLyIsImV4cCI6MTc0NjAzMjQyMSwiaWF0IjoxNzQ2MDE4MDIxLCJqdGkiOiJjOTUzYjQ0OS1hZWNkLTQ0OWEtYjk2NC0xNDI3Mjc0YjEzNGEiLCJjbGllbnRfaWQiOiI0ZTJlMDJjOC03NDU2LTRiZDQtOWM3NS01Yjk4ZjIwNTgzODIifQ.Pk7Z8D1LEfn5OwqiL1UUTs3vTJM2yC4i_DTWxF0tfVmI7h5cuApFyXreOwVoniNfNZAWhrGKFEGNeVlQ7f3i0A; ILOGIN=Y; sid=9911e06e465540149365674665b6ad206336366c; searchKeyword=%EB%B0%B1%ED%8C%A9%7C%EB%82%A8%EC%84%B1%20%EC%8A%A4%ED%82%A8; searchKeywordType=%7B%22%EB%B0%B1%ED%8C%A9%22%3A0%7D%7C%7B%22%EB%82%A8%EC%84%B1%20%EC%8A%A4%ED%82%A8%22%3A0%7D; trac_src=0; trac_spec=0; trac_addtag=0; trac_ctag=\"\"; trac_lptag=\"\"; trac_itime=\"\"; trac_sid=\"\"; trac_appver=\"\"; _abck=944E3A428719982F5654F0EAD520FBC9~0~YAAQx+Q1F8ElKYaWAQAAP//5hg32UUWft+4VJpfoCqEvYMzh8XF9E87GNqfN7nfOXjZDknJQs4f22MJWlnTfPo+7VwXFwaU2eNb2IxDN9xFkbs36w0cWv5ga7azFygd4vB8y2giFDcVRIpLljH37jucWPyUVCF0/ht4XirzmQAdRotuiucgegBRogZyKDEpitpWbRX6oze51Vs3xVR8hDJBrkwPa6V4001lGaVg+BeE+1bJPGI1+9oTJAuj0MTKcQgWARcPPPFTRilIM4Ed7Tf8WjQV9VLQUm7rr5jsYLgG5o1zgVhSBpaA8GMPA3XUIxqmyh9knTo2Cq6PwtZqnmH7g22wp7CytkEGsU/VUmnp6+5nfq9lnHnYtOzEIYwqzENh71KTHfl45w8T8SMVE2VNVw1km/cVR4SHv5QBcCG8k7xJTciFj2gI1AbtXSgbJ+WEVW1GRkTkDwRwieF4qlgc+dpragvALZiaaUiEpsPzwwNAGNs/SxCDPdWmv8lGO59KfJ02uHphgT6QfHVns+NxD8vilpI16NRkIUA8kqLI2k1HBC8o2/iwDdpc2lgh8fQ4PNTHXE/Fb6H2VEBlKW/epY49WocUstrrQYJagcfeGK0a7DJ8RIh20dQmiVXPM+sUUymolB4BJAX89NpfKtLsMDSwqs/wmJEMsiPcZ7uKbkHTSEJDlBZHueAtKWpkDLgW748OXZw+aqpzz57SHz5nsCLjzJ0ru+hmmImmlsoBe4wmfN1dVdOvnz9pZyec=~-1~-1~-1; bm_sz=DCBA45E24BB9AE509E53E1D8D6E7730E~YAAQV+Q1F/oIJYaWAQAAPzH9hhsE6SRfmO9aJ7UZpo23WM84ppHzkklfxsOmlCby0nfFuqQfF1TJwJGagEAx5Zr3PSQdW78h91vgHeSap7WXxRBob4/vxRJAJn5Dd32Agld/zxkxf+uP3tHsMhBpvtSSJ76VbiSWZIac27kbQHAZk2A6CopqnTyI91g7oJZ8c9iyPfx8zFfYAE0zT+O1pK9hhJcCCY7XWOvwC/bxb+vw/sTT5/t51tsTZ4lVnplRz4M747GSMxOcMo5Q/lZXevCqPTXflZsGc7oMBS3ukgS7QsNydz9Nf7VSMn9CVUyeOv5+PTww0Xm9IZDfKcdcKqqSHlqNA3+QwrQd4uiUdlB+XbJPy0hLqnnhV6B6hQjji2/Mqfo2+aPLCvYQEUzCoCOBRGuf6LvAymY41+EdLnq+27iQtqxDT4W9cqt79NOn5WekWkNK8MfJZXptd2vkDp1+jQ==~4535600~3487539; cto_bundle=GqKP5F9tVm9UbTdrN25ZWiUyQjREWTUwRHNNcElEUW5GRTNTRFREZEk2WkF4TFB5bW1sRHVIbUU0WHR5dG4lMkYlMkJiN1d5WCUyQm5tdVJHWndRU25MdGhLT1FsRUVJeXpXRUt4M0xqdmJTblpNcXN4JTJGRDB1M0c2YVVBQyUyRmpxc09ZUk5QbFFxRDMlMkYyMXpGaWN2NjhlQzNPWXluNzhGcjZhZnJWc3c3OTFKRyUyRlNvYkpCemhFV3pGbjZmQm1sWnZkZWp4YmpySHpSJTJGWHJkREtQRXhocCUyRk5Qd1VuYnlYbFF3aEElM0QlM0Q; bm_lso=CFB7E7E89D2C71E50F45ADB3368826391AA5DDDFDDB8D26C10E214FCC04DDF68~YAAQV+Q1F0sKJYaWAQAAdzb9hgPkv2mXr8d3wYDM2hWLTKL0VG8yzRDopjAETqx1SJaGohOjP/nsGGHAfq+HsIAIdWgtaRQfNVrBpNKGBGxefFBejXZxopUoR5LQb6FmwnNcNW1gPcVvw7CQopMuxeuuqKzILsSiGpY2ojnk+yqe0apCq6b9g6T0ybnxNuguKSw8jo3RQyO2rKQ7fliOwwlnGiJngc76GgEEhBl+Zvbrlc/xZft7uZh60pAPsBp2KoeVwkw2Ib7hb6b0zDmU9lRzxMIzbJ9mIouLuFS+T81ZwzSD9hLV9JfMTsRnqdPXBwkxD9C4CQVNm13BSXz8Ovg/shdyE7bH6sgy0OG37LW/k0bHNBg8uvEBqdlSPjZwJ8sdKqG41bz7TPRrDnMZWEa84XbYpfolOzXM7LW03g3pfI5R8tuPfmiabDHZsk3ZXsLCSXb60rKlfMb+Fns=^1746021463896; bm_s=YAAQf9ojFxUuEXGWAQAAegn/hgOv5AbHprJTtddv+jdlJ4cVFDMURt2QFkO2UKNRdIgOTK7SCdi+uZ6CWi36uqKE62hzcOwdvNh6zvwHVbns1DqXqYwQiP7V1FsFRSXtslegpRjM2cCyRpfvnVaTdoEvhYxPL8vJkLBYQd0gANIFtsVBuOECPnbBsBLlTDC1YtC3DpRFA8dGyjpZxRC4ypaUqs7DIcwP0lwAisGXIXauzXaVxTDYRsXrnSSxrJ5swEkcmcbbOIodNu4la28iJsXDgWkxmNHgIPr2yEdxDZMuODIqgUsz7CWPBPwlKyizz3Mdj0R5L1P3eIBRVpIeVDkBZ+q5008jlFgHjdyEbnZswveB3OZ49zz/k/rTQcGIcOSxYXYNu2lPrTUcZE6KCiRTvYKudWelMElA5g9t1N5pCE09T29JD+LZ4Ar+Nvv9FghMRxdeAz+6Y7clKU2xpJei2/ay9vn8; bm_so=9A4855DB872EECC0FE459351F92B12BA07F7F8C829D23CF7CBF7D533D437304E~YAAQf9ojFxYuEXGWAQAAegn/hgM4UTSTmRf+tMofGUUda4keSuO3zsK2RNafEcjoAaXt5pR57cISVQIU3qZN4+PzrBKWjSUjEAFes+BA/g/jmkS0UavWJwim8x6ufVYiXGbV2EV2Y6sI08S1xLIz2EBmAG7GO7/pAhd9oDyD9xu2ZxSFfOA5ALuWFRVGillrbFMvuV/9MY3OHTKrVp8obGpsU20ILqCwF4GJdcDZ/k9BNeETZKLYmy62IZqOszcz8oyyRB4nXh9t2unxUY3B2qSKSo4h2wV3rpFlcq+Nf6VJDJoOow9e/a/lvaCqnrCHojOaXvdnskRA0ArJhCXt7f4DrcVB89VuxHxkJv4Eh/XK6VRD3VLVADMUAXbB/S4QKGFAe6oC2k5c5OA4oHFjkU5/RQVrvk7DV8yPyijaeMCemkeQavJSZESeigv1upvkYsxG5oJpyWdmnAtomcs=; baby-isWide=wide; web-session-id=dc3db872-6985-4fca-b391-bf308692fa54' \\\n  -H 'pragma: no-cache' \\\n  -H 'priority: u=1, i' \\\n  -H 'referer: https://www.coupang.com/vp/products/7856132617?itemId=21426210870&vendorItemId=88316309236&sourceType=srp_product_ads&clickEventId=096ca7f0-25cb-11f0-8f4f-95d41a1ed88b&korePlacement=15&koreSubPlacement=1&q=%EB%82%A8%EC%84%B1+%EC%8A%A4%ED%82%A8&itemsCount=36&searchId=51a6d0d92058873&rank=0&searchRank=0&isAddedCart=' \\\n  -H 'sec-ch-ua: \"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"' \\\n  -H 'sec-ch-ua-mobile: ?0' \\\n  -H 'sec-ch-ua-platform: \"macOS\"' \\\n  -H 'sec-fetch-dest: empty' \\\n  -H 'sec-fetch-mode: cors' \\\n  -H 'sec-fetch-site: same-origin' \\\n  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \\\n  -H 'x-requested-with;'"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        20
+      ],
+      "id": "f9011e27-339a-403d-8ab0-5cd351a1b3d5",
+      "name": "Execute Command1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "pageNo",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "productNo",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        880,
+        20
+      ],
+      "id": "7878403f-540c-4217-b9c0-068206745dd0",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "1EAm3rTmvNl4ZRQkdYovUdfIYrrtseUr2dJlEihCISfI",
+          "mode": "list",
+          "cachedResultName": "상품 리뷰 DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EAm3rTmvNl4ZRQkdYovUdfIYrrtseUr2dJlEihCISfI/edit?usp=drivesdk"
+        },
+        "title": "={{ $json.productNo }}",
+        "options": {
+          "index": 0
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        -180
+      ],
+      "id": "b1e85105-b3f3-4fc2-9d5f-f3aeda64126e",
+      "name": "시트 생성",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1140,
+        20
+      ],
+      "id": "14e5bf9d-fe7d-4457-ad5b-c0da4d858803",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "productNo"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -80
+      ],
+      "id": "9e2bf5f6-050a-4eba-948f-07a9a4f86184",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0498870-2210-4968-b11f-4cc1cd9ef0cb",
+              "name": "googleSheetUrl",
+              "value": "=https://docs.google.com/spreadsheets/d/1EAm3rTmvNl4ZRQkdYovUdfIYrrtseUr2dJlEihCISfI",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        240
+      ],
+      "id": "c3e8d2a0-8baf-47a7-a500-715cc1019e6e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6ffa27c8-c2ec-4189-b140-1f181b2f1473",
+              "name": "productNo",
+              "value": "={{ $json.productNo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -120,
+        -80
+      ],
+      "id": "19800dbd-e144-4803-9446-ac238a16fdd5",
+      "name": "상품 번호 입력"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "productNo": "7856132617"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Command": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1차 파싱": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "2차 파싱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2차 파싱": {
+      "main": [
+        [
+          {
+            "node": "전처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "전처리": {
+      "main": [
+        [
+          {
+            "node": "리뷰 데이터 입력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "페이지수 계산",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "페이지수 계산": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Command1": {
+      "main": [
+        [
+          {
+            "node": "1차 파싱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "시트 생성": {
+      "main": [
+        [
+          {
+            "node": "리뷰 데이터 헤더 입력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "리뷰 데이터 입력": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Execute Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "상품 번호 입력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "리뷰 데이터 헤더 입력": {
+      "main": [
+        []
+      ]
+    },
+    "상품 번호 입력": {
+      "main": [
+        [
+          {
+            "node": "시트 생성",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9632ee94-ce16-477d-93a0-fdd5a3a32307",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7fa3a3917b9829d954f3c12bc6521c63cd47a0eeab0efcb35b6d409fe14841d"
+  },
+  "id": "yY5FyRmo19CbX4a8",
+  "tags": []
+}

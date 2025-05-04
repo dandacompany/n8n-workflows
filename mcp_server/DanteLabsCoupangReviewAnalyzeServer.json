@@ -1,0 +1,86 @@
+{
+  "name": "상품 리뷰 분석 MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "e607359c-b9a3-4024-8377-e273b7d149b9"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -60
+      ],
+      "id": "e8e108c9-f0c3-4424-ac86-f60260e094ab",
+      "name": "MCP Server Trigger",
+      "webhookId": "e607359c-b9a3-4024-8377-e273b7d149b9"
+    },
+    {
+      "parameters": {
+        "name": "Coupang_Product_Scraper",
+        "description": "쿠팡의 상품의 리뷰 데이터를 스크랩해주는 도구",
+        "workflowId": {
+          "__rl": true,
+          "value": "yY5FyRmo19CbX4a8",
+          "mode": "list",
+          "cachedResultName": "상품 리뷰데이터 스크랩"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "productNo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('productNo', `쿠팡 상품번호`, 'string') }}"
+          },
+          "matchingColumns": [
+            "productNo"
+          ],
+          "schema": [
+            {
+              "id": "productNo",
+              "displayName": "productNo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        180
+      ],
+      "id": "bd5f070d-40f2-4cf9-8b49-59d3acc30568",
+      "name": "Call n8n Workflow Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3e5a2ebb-6639-4948-9a4c-800e041b5a00",
+  "meta": {
+    "instanceId": "b7fa3a3917b9829d954f3c12bc6521c63cd47a0eeab0efcb35b6d409fe14841d"
+  },
+  "id": "CtK72sCdZlLijSdf",
+  "tags": []
+}
