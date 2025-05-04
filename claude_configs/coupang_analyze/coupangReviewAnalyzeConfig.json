@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "google-sheets-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/google-sheets-mcp/dist/index.js"
+      ]
+    },
+    "coupang-review-data-scraper": {
+      "command": "npx",
+      "args" : [
+        "-y",
+        "supergateway",
+        "--sse",
+        "http://localhost:5678/mcp/[YOUR_MCP_SERVER_ID]/sse"
+      ]
+    }
+
+  }
+}
