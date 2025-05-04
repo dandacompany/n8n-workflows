@@ -45,3 +45,18 @@
 ![쿠팡 리뷰 분석 MCP 설정](screenshot1.png)
 
 - n8n 노드에서 MCP 서버 ID를 확인해서 claude mcp 설정 파일에 삽입합니다.
+
+```json
+{
+  ...
+  "coupang-review-data-scraper": {
+    "command": "npx",
+    "args" : [
+        "-y",
+        "supergateway",
+        "--sse",
+        "http://localhost:5678/mcp/[YOUR_MCP_SERVER_ID]/sse"
+    ]
+  }
+}
+```
