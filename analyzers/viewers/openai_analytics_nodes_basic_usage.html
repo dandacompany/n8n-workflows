@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dante Labs - n8n Workflow Demo ( openai_analytics_nodes_basic_usage )</title>
+    <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.0.0/webcomponents-loader.js"></script>
+    <script src="https://www.unpkg.com/lit@2.0.0-rc.2/polyfill-support.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@n8n_io/n8n-demo-component/n8n-demo.bundled.js"></script>
+    <style>
+       n8n-demo {
+	--n8n-frame-background-color: black;
+	--n8n-json-background-color: lightgray;
+	--n8n-copy-button-background-color: gray;
+	--n8n-workflow-min-height: 800px;
+	--n8n-iframe-border-radius: 30px
+}
+    </style>
+</head>
+<body> 
+    <div id="n8n-demo-container"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const jsonUrl = 'https://raw.githubusercontent.com/dandacompany/n8n-workflows/refs/heads/main/analyzers/openai_analytics_nodes_basic_usage.json';
+                const response = await fetch(jsonUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP 오류: ${response.status}`);
+                }
+                const workflowData = await response.json();
+                
+                const demoElement = document.createElement('n8n-demo');
+                demoElement.setAttribute('workflow', JSON.stringify(workflowData));
+                demoElement.setAttribute('frame', 'true');
+                demoElement.setAttribute('clicktointeract', 'true');
+                demoElement.setAttribute('theme', 'dark'); // 또는 'dark'
+                demoElement.showPreview = true;
+                demoElement.showCode = true;
+                demoElement.fullscreen = true;
+                demoElement.insideIframe = true;
+                demoElement.copyText = '복사하기';
+                document.getElementById('n8n-demo-container').appendChild(demoElement);
+                console.log('워크플로우가 성공적으로 로드되었습니다.');
+            } catch (error) {
+                console.error('워크플로우 데이터를 가져오는 중 오류 발생:', error);
+                document.getElementById('n8n-demo-container').innerHTML = 
+                    `<p>워크플로우 데이터를 가져오는 중 오류가 발생했습니다: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
