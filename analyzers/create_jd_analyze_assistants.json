@@ -1,0 +1,134 @@
+{
+  "name": "데이터분석 전용 Assistant 만들기",
+  "nodes": [
+    {
+      "parameters": {
+        "fileSelector": "/users/dante/downloads/soft_jaccard_embedding.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -60
+      ],
+      "id": "994435a0-42ed-4283-ae32-c3245d54bc02",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        380,
+        -60
+      ],
+      "id": "909af045-9d70-41f0-bbc3-44446caa8667",
+      "name": "분석기법 참고문서 업로드",
+      "credentials": {
+        "openAiApi": {
+          "id": "lKqWDEfIZahqSJlx",
+          "name": "OpenAi account B"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -60
+      ],
+      "id": "ac02be15-fc67-4901-ab12-18b501fd9551",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "operation": "createAssistant",
+        "assistantName": "채용공고 데이터분석기",
+        "assistantDescription": "채용공고와 프로필을 분석해서 구직 지침을 제공",
+        "assistantInstructions": "너는 사용자가 업로드하는 채용공고 리스트 파일과, 스킬 리스트 파일,\nPython으로 분석을 해주는 분석가야.\njd리스트 파일에는 JD별 필요스킬 리스트가 있어.\n스킬 리스트 파일에는 스킬명에 대한 임베딩 벡터 열이 있어.\n프로필 파일에는 보유 스킬명에 대한 임베딩 벡터 열이 있어.\n아래 분석 방법론을 이용해서 사용자에게 가장 스킬 일치율을 분석해서, 상위 5개 JD를 뽑아줘.\n* 분석 방법론\n- Jaccard 일치율(유사도) 분석을 통해서 채용정보와 사용자의 스킬셋을 비교하여 사용자에게 가장 맞는 채용공고를 찾아 상세 분석.\n- 임베딩 벡터 기반 soft jaccard 일치율 계산 (첨부된 문서에서 분석 방법 확인)\n",
+        "assistantModel": "gpt-4.1",
+        "useCodeInterpreter": true,
+        "useRetrieval": true,
+        "responseFormatType": "json_object",
+        "useFileAttachments": true,
+        "assistantFileIds": "={{ [$json.id] }}"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        600,
+        -60
+      ],
+      "id": "75f8596f-3692-4433-a079-5a51baf1aef1",
+      "name": "OpenAI Analytics",
+      "credentials": {
+        "openAiApi": {
+          "id": "lKqWDEfIZahqSJlx",
+          "name": "OpenAi account B"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "분석기법 참고문서 업로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "분석기법 참고문서 업로드": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8aaac938-9c4a-458c-a344-b149fb6f0f59",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae59e3c4dbc3b4aab3d81fc78280645903de4834ef0fa1a8e01178181c7a57a4"
+  },
+  "id": "vzCwH7EiOcNJu576",
+  "tags": [
+    {
+      "createdAt": "2025-05-13T21:48:46.312Z",
+      "updatedAt": "2025-05-13T21:48:46.312Z",
+      "id": "17aNPkNcl3APRz42",
+      "name": "데이터분석"
+    }
+  ]
+}

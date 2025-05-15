@@ -1,0 +1,1191 @@
+{
+  "name": "JD 데이터분석",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        860
+      ],
+      "id": "8b2d478d-fc9f-43a7-9d09-66ce4d7864ab",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $json.spreadsheetId }}/values/{{ $json.title }}!A1:A1:append?valueInputOption=USER_ENTERED",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ {\"values\" : [[\"id\", \"companyName\", \"position\",\t\"detailPageUrl\", \"jdTitle\",\t\"jdContent\", \"skill\", \"career\", \"education\", \"extraPoint\"]] } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        340
+      ],
+      "id": "a3c597c9-ac16-4855-a3c4-1fb6ba99f679",
+      "name": "헤더 입력",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2cc049ad-dfa0-4884-aa94-e793b3f928a4",
+              "name": "googleSpreadSheetId",
+              "value": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+              "type": "string"
+            },
+            {
+              "id": "a4eec0d6-57a4-4f40-bc15-af68237777a6",
+              "name": "sheetName",
+              "value": "JD",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -200,
+        860
+      ],
+      "id": "41f66b75-4d7f-48fb-aa52-f0deb4132d9a",
+      "name": "변수 설정"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "title": "=JD {{ $json.sheetName }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        80,
+        340
+      ],
+      "id": "d7f4c659-cdd0-4616-b4f5-32e5ae8075d3",
+      "name": "시트생성",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "내프로필",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        60,
+        860
+      ],
+      "id": "8eb24b1f-ff7e-402b-a0f2-919c4fc9d5ae",
+      "name": "프로필로드",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  summary : $input.first().json.summary,\n  career : $input.first().json.career,\n  preferredLocation: $input.first().json.preferred_location,\n  skills : JSON.parse($input.first().json.skills),\n  targetRole : JSON.parse($input.first().json.desired_roles),\n  targetSalary : $input.first().json.target_salary\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        860
+      ],
+      "id": "063fb35f-d31c-42b2-a3cd-c74988796b6c",
+      "name": "파싱1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "skills",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        360,
+        860
+      ],
+      "id": "a9ab10cb-e43a-4b12-8ef1-32b2ec667b5b",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $json.sheetName }}",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        1320
+      ],
+      "id": "0274776c-8e6e-419a-9f4a-562656d2e0cc",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1381694919,
+          "mode": "list",
+          "cachedResultName": "스킬",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit#gid=1381694919"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        1100
+      ],
+      "id": "dbba5ef4-1d0a-4262-84b9-63bdeb95238c",
+      "name": "Google Sheets4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1440,
+        1060
+      ],
+      "id": "a8ad922f-cc97-4cb8-9561-00c47a361d62",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "my_skill_embedding.csv"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        980,
+        860
+      ],
+      "id": "0bfaa9f0-619d-458c-bea6-5ac6f2179c24",
+      "name": "나의 스킬 임베딩 파일 생성"
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "jd_list.csv"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        1320
+      ],
+      "id": "46280b84-05f0-4e20-b9df-ff48b919b065",
+      "name": "채용공고 리스트 파일 생성"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "total_skill_embedding.csv"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        1100
+      ],
+      "id": "4ecef78f-d183-46ce-bda9-0fffbbc59184",
+      "name": "전체 스킬 임베딩 파일 생성"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "id",
+              "renameField": true,
+              "outputFieldName": "fileID"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        1080
+      ],
+      "id": "e91ef573-3ff9-4deb-af45-3c44250f9e7d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "my_profile.csv"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        1560
+      ],
+      "id": "ae1b9226-775d-4c1f-a7f4-d85db413f43f",
+      "name": "나의 프로필 정보 파일 생성"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.all().map(e=>e.json.messages[0].content[0].text).reverse().join('\\n\\n' );\n\nreturn {\n  result: result\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        1080
+      ],
+      "id": "0f115039-a695-4996-bb47-bc99d0d069c1",
+      "name": "메세지 병합"
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "report",
+        "reportPrompt": "각 회사별로 A4용지 1장 짜리 총 3장 분량으로 모던하고 깔끔한 UI 라이브러리를 사용한 디자인으로 다음 데이터를 분석하고 시각화하는 HTML 보고서를 작성해주세요.",
+        "reportInputText": "={{ $json.result }}"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        1080
+      ],
+      "id": "ce63471b-82de-4f1f-8c1c-3276c44271ef",
+      "name": "레포트 생성",
+      "alwaysOutputData": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 나의 스킬 임베딩 파일 생성",
+        "height": 220,
+        "width": 1260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        800
+      ],
+      "id": "ee7df375-f7e0-4054-be57-adac05a0903f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 전체 스킬 임베딩 파일 생성",
+        "height": 220,
+        "width": 1260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        1040
+      ],
+      "id": "51d582c6-3001-475c-bfb7-e31ee04c5c16",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 전체 JD목록 파일 생성",
+        "height": 220,
+        "width": 1260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        1280
+      ],
+      "id": "5e83ef6b-ebe7-4f82-8599-5727af753680",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 나의 프로필 파일 생성",
+        "height": 220,
+        "width": 1260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        20,
+        1520
+      ],
+      "id": "ab468f32-5348-4bb2-a145-d48b334b2879",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## OpenAI Assistants API를 통한 원격 에이전트 Python 분석",
+        "height": 300,
+        "width": 1460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        980
+      ],
+      "id": "3c78873d-707b-49d5-8839-d3c9bfea2148",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## 데이터 시각화",
+        "height": 300,
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2820,
+        980
+      ],
+      "id": "fad3a384-e338-4735-b425-214353b37f2c",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "VCPplKnDpVarpo8h",
+          "mode": "list",
+          "cachedResultName": "스킬 데이터 임베딩"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "googleSpreadSheetId": "={{ $('변수 설정').googleSpreadSheeetId }}",
+            "sheetName": "={{ $('변수 설정').sheetName }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "googleSpreadSheetId",
+              "displayName": "googleSpreadSheetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sheetName",
+              "displayName": "sheetName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        580
+      ],
+      "id": "0a02aac4-4f64-4d50-ba61-fe12d345323a",
+      "name": "스킬 데이터 임베딩 워크플로",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "b1RoBWKWcquZom4U",
+          "mode": "list",
+          "cachedResultName": "JD 스크랩"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "googleSpreadSheetId": "={{ $json.googleSpreadSheetId }}",
+            "sheetName": "={{ $json.sheetName }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "googleSpreadSheetId",
+              "displayName": "googleSpreadSheetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sheetName",
+              "displayName": "sheetName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        60,
+        580
+      ],
+      "id": "e8cb8353-e33f-41fe-8a1c-c3d66ab1d9d3",
+      "name": "JD 스크랩 워크플로",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        860
+      ],
+      "id": "70aaf348-8238-439e-b8c4-29a979266d19",
+      "name": "파일업로드1",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        1100
+      ],
+      "id": "b220a3a6-d1c9-44b6-a32d-bc9dadbd4cde",
+      "name": "파일업로드2",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        1320
+      ],
+      "id": "9b030a64-bde3-4dc4-90ed-abce468ccde2",
+      "name": "파일업로드3",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        1560
+      ],
+      "id": "83c6004f-6c0e-4c1d-851d-53a6cad227ec",
+      "name": "파일업로드4",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fileSelector": "/users/dante/downloads/soft_jaccard_embedding.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        1080
+      ],
+      "id": "15837505-32cb-4029-88bd-4a3f09d30298",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "file",
+        "operation": "uploadFile"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        1080
+      ],
+      "id": "9a5c39ae-0d41-433a-91f6-c0677a0be5c9",
+      "name": "분석기법 참고문서 업로드",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "operation": "createAssistant",
+        "assistantName": "채용공고 데이터분석기",
+        "assistantDescription": "채용공고와 프로필을 분석해서 구직 지침을 제공",
+        "assistantInstructions": "너는 사용자가 업로드하는 채용공고 리스트 파일과, 스킬 리스트 파일,\nPython으로 분석을 해주는 분석가야.\njd리스트 파일에는 JD별 필요스킬 리스트가 있어.\n스킬 리스트 파일에는 스킬명에 대한 임베딩 벡터 열이 있어.\n프로필 파일에는 보유 스킬명에 대한 임베딩 벡터 열이 있어.\n아래 분석 방법론을 이용해서 사용자에게 가장 스킬 일치율을 분석해서, 상위 5개 JD를 뽑아줘.\n* 분석 방법론\n- Jaccard 일치율(유사도) 분석을 통해서 채용정보와 사용자의 스킬셋을 비교하여 사용자에게 가장 맞는 채용공고를 찾아 상세 분석.\n- 임베딩 벡터 기반 soft jaccard 일치율 계산 (첨부된 문서에서 분석 방법 확인)\n",
+        "assistantModel": "gpt-4.1",
+        "useCodeInterpreter": true,
+        "useRetrieval": true,
+        "responseFormatType": "json_object",
+        "useFileAttachments": true,
+        "assistantFileIds": "={{ [$json.id] }}"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        2360,
+        1080
+      ],
+      "id": "65ccc264-088d-4627-b37c-3b4b580883c9",
+      "name": "JD 분석 어시스턴트 생성",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "thread",
+        "operation": "createAndRunThread",
+        "threadInitialMessage": "=* 분석 목표\n너는 채용과 입사지원을 돕는 인사 전문가야.\n나의 스킬정보와 JD별 스킷셋 정보를 임베딩 벡터 기반 Jaccard 일치율을 분석하여 가장 나와 유관한 JD 상위 5개를 판별하고,\n도출된 JD 3개와 나의 프로필을 비교 분석하여, 아래 표 양식에 맞게 결과를 만들고 그것을 JSON 형식으로 출력해줘.\n내용을 생략하지 말고 전체를 작성해줘.\n면접 예상질문은, 회사의 JD 내용을 바탕으로 포괄적이고 핵심적이고, 개인 경험과 역량을 확인할수 있는 질문으로 생성해줘.\n이 내용을 통해서 나의 입사지원을 준비할 것이기 때문에 상세하고 친절하고 전문적인 가이드가 필요해.\n\n* 결과 JSON 양식\n[{\n  \"comapnyName\" : \"...\", # 회사명\n  \"jdTitle\" : \"...\", # JD 제목\n  \"jobRole\" : \"...\", # 직무 역할\n  \"qualification\" : \"...\", # 자격 요건\n  \"extraPoint\" : \"...\", # 우대 사항\n  \"keyword\" : \"...\", # 핵심 키워드\n  \"match/mismatch\" : true,  # or false\n  \"alignment\" : \"...\",  # 부합하는 점에 대한 서술 (50자 내외)\n  \"gap\" : \"...\", # 역량 GAP 및 보완이 필요한 점 (100자 내외)\n  \"sample_interview_questions\" : [\"...\", \"...\", ...] # 예상 면접 질문 5개\n}, ...]\n\n* 파일 상세 설명\n1. {{ $('Aggregate').item.json.fileID[0] }} 파일은 나의 스킬에 대한 임베딩 벡터가 저장된 파일이야.\nex) 데이터 구조\nskill, embedding\nPython, \"[0.1232, 0.232123, ...]\"\n\n2. {{ $('Aggregate').item.json.fileID[1] }} 파일은 전체 스킬에 대한 임베딩 벡터가 저장된 파일이야.\nex) 데이터 구조\nskill, embedding\n\"Python\", \"[0.1232, 0.232123, ...]\"\n\n3. {{ $('Aggregate').item.json.fileID[2] }} 파일은 JD 리스트가 저장되어 있는 파일이야.\n아래 구조를 참고해서 skill 열의 skill 데이터의 임베딩 벡터를 2번 파일에서 join 하여 조회할수 있어.\nex) 데이터 구조\nid,\tcompanyName,\tposition,\tdetailPageUrl,\tjdTitle,\tjdContent,\tskill,\tcareer,\teducation,\textraPoint\n281113,\t지엔엠라이프,\t홍보바이럴 마케터,\thttps://www.wanted.co.kr/wd/281113,\t\"지엔엠라이프의 홍보바이럴 마케터 포지션을 확인해 보세요...\", \"GNM LIFE는 간편함과 스마트함을 갖춘... 기업입니다.\", [\"바이럴 마케팅\",\"블로그 마케팅\",\"카페 마케팅\",\"유튜브 마케팅\",\"SEO\",\"데이터 분석\",\"콘텐츠 기획\",\"원고 작성\",\"상품 상세페이지 작성\",\"검색 트렌드 분석\"],\t1,\t4년제 대졸 이상\n\n4. {{ $('Aggregate').item.json.fileID[3] }} 파일은 나의 프로필 정보 파일이야.",
+        "threadFileAttachmentMethod": "existingFiles",
+        "threadFileIds": "={{ $('Aggregate').item.json.fileID }}",
+        "threadMaxPollTime": 600,
+        "threadAssistantSelection": "byId",
+        "threadAssistantId": "={{ $json.assistant.id }}"
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        1080
+      ],
+      "id": "50532997-f8a8-48b6-ae1a-0a53387128aa",
+      "name": "Python 데이터 분석 에이전트",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "embedding",
+        "text": "={{ $json.skills }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        500,
+        860
+      ],
+      "id": "7f287721-0258-4001-90fe-fb974e24cc4e",
+      "name": "스킬 임베딩",
+      "credentials": {
+        "openAiApi": {
+          "id": "lKqWDEfIZahqSJlx",
+          "name": "OpenAi account B"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "mode": "list",
+          "cachedResultName": "채용공고DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1842739289,
+          "mode": "list",
+          "cachedResultName": "내 스킬",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit#gid=1842739289"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "skill": "={{ $('Split Out3').item.json.skills }}",
+            "embedding": "={{ $json.data[0].embedding }}"
+          },
+          "matchingColumns": [
+            "skill"
+          ],
+          "schema": [
+            {
+              "id": "skill",
+              "displayName": "skill",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "embedding",
+              "displayName": "embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        860
+      ],
+      "id": "96b3a7d2-2e2d-4db8-ab13-1ea4f6cb6f30",
+      "name": "임베딩 저장",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "mode": "list",
+          "cachedResultName": "채용공고DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1842739289,
+          "mode": "list",
+          "cachedResultName": "내 스킬",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit#gid=1842739289"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        820,
+        860
+      ],
+      "id": "dea4a6fe-e372-4277-95c0-0d869878d103",
+      "name": "임베딩 로드",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "변수 설정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "변수 설정": {
+      "main": [
+        [
+          {
+            "node": "프로필로드",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "JD 스크랩 워크플로",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "시트생성": {
+      "main": [
+        [
+          {
+            "node": "헤더 입력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "프로필로드": {
+      "main": [
+        [
+          {
+            "node": "파싱1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "나의 프로필 정보 파일 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "파싱1": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "스킬 임베딩",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "채용공고 리스트 파일 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "전체 스킬 임베딩 파일 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "나의 스킬 임베딩 파일 생성": {
+      "main": [
+        [
+          {
+            "node": "파일업로드1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "채용공고 리스트 파일 생성": {
+      "main": [
+        [
+          {
+            "node": "파일업로드3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "전체 스킬 임베딩 파일 생성": {
+      "main": [
+        [
+          {
+            "node": "파일업로드2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "나의 프로필 정보 파일 생성": {
+      "main": [
+        [
+          {
+            "node": "파일업로드4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "메세지 병합": {
+      "main": [
+        [
+          {
+            "node": "레포트 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JD 스크랩 워크플로": {
+      "main": [
+        [
+          {
+            "node": "스킬 데이터 임베딩 워크플로",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "파일업로드1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "파일업로드3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "파일업로드2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "파일업로드4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "분석기법 참고문서 업로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "분석기법 참고문서 업로드": {
+      "main": [
+        [
+          {
+            "node": "JD 분석 어시스턴트 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JD 분석 어시스턴트 생성": {
+      "main": [
+        [
+          {
+            "node": "Python 데이터 분석 에이전트",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Python 데이터 분석 에이전트": {
+      "main": [
+        [
+          {
+            "node": "메세지 병합",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "스킬 임베딩": {
+      "main": [
+        [
+          {
+            "node": "임베딩 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "임베딩 저장": {
+      "main": [
+        [
+          {
+            "node": "임베딩 로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "임베딩 로드": {
+      "main": [
+        [
+          {
+            "node": "나의 스킬 임베딩 파일 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ce314edd-80ea-4653-ab56-554e582dd657",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae59e3c4dbc3b4aab3d81fc78280645903de4834ef0fa1a8e01178181c7a57a4"
+  },
+  "id": "j0jgLPw35ZpFozch",
+  "tags": [
+    {
+      "createdAt": "2025-05-13T21:48:46.312Z",
+      "updatedAt": "2025-05-13T21:48:46.312Z",
+      "id": "17aNPkNcl3APRz42",
+      "name": "데이터분석"
+    }
+  ]
+}

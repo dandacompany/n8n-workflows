@@ -1,0 +1,428 @@
+{
+  "name": "스킬 데이터 임베딩",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "mode": "list",
+          "cachedResultName": "채용공고DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "스킬",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "skill": "={{ $('Loop Over Items').item.json.skills }}",
+            "embedding": "={{ $json.data[0].embedding }}"
+          },
+          "matchingColumns": [
+            "skill"
+          ],
+          "schema": [
+            {
+              "id": "skill",
+              "displayName": "skill",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "embedding",
+              "displayName": "embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        780,
+        0
+      ],
+      "id": "4b211b4f-7051-426a-9982-c8f1d13239a1",
+      "name": "임베딩 저장",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "openAiApi",
+        "resource": "embedding",
+        "text": "={{ $json.skills }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-openai-analytics.openAIAnalytics",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -75
+      ],
+      "id": "6dbcb568-7cf5-4a06-83c9-b5ef6992f7e5",
+      "name": "Skill 임베딩",
+      "credentials": {
+        "openAiApi": {
+          "id": "RAiMcyv52LiT8VU4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        340,
+        0
+      ],
+      "id": "0b28e7a8-a683-45b8-af51-9f27002f6c9f",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "googleSpreadSheetId"
+            },
+            {
+              "name": "sheetName"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -980,
+        0
+      ],
+      "id": "be8555ab-bbd1-4c6d-9bfa-336d03f8b5b1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.sheetName }}",
+          "mode": "name"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "G:G"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -760,
+        100
+      ],
+      "id": "c3c25dd6-0c91-42f9-b757-9e3b5bd26969",
+      "name": "JD 스킬데이터 로드",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "스킬",
+          "mode": "name"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRangeA1",
+              "range": "A:A"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        -100
+      ],
+      "id": "e356f55a-d36a-4d96-ac8c-15ab046a3d81",
+      "name": "저장된 스킬 데이터 로드",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "query": "SELECT distinct(skills) as skills\nFROM input2\nWHERE skills NOT IN (\n  SELECT skill FROM input1\n);"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "08ad5715-2311-4d08-8329-3d9a201f4c5b",
+      "name": "Merge",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  skills :\n  $input.all().map(e => JSON.parse(e.json.skill)).flat()\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        100
+      ],
+      "id": "86fa075e-8d34-42ba-82db-0b5e0b98c091",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "skills",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        100
+      ],
+      "id": "40f21e51-5ec8-4b36-a812-1f9f869502f3",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c0ae5ba9-be86-45eb-a38a-1666d7034cac",
+              "leftValue": "={{ $json.skills }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        0
+      ],
+      "id": "0bccfdfc-d951-4ca9-b10d-474f72279ccb",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "googleSpreadSheetId": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "sheetName": "JD"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "임베딩 저장": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skill 임베딩": {
+      "main": [
+        [
+          {
+            "node": "임베딩 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Skill 임베딩",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "저장된 스킬 데이터 로드",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "JD 스킬데이터 로드",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JD 스킬데이터 로드": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "저장된 스킬 데이터 로드": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d390d421-b361-4092-86d1-c78200204bcd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae59e3c4dbc3b4aab3d81fc78280645903de4834ef0fa1a8e01178181c7a57a4"
+  },
+  "id": "VCPplKnDpVarpo8h",
+  "tags": [
+    {
+      "createdAt": "2025-05-13T21:48:46.312Z",
+      "updatedAt": "2025-05-13T21:48:46.312Z",
+      "id": "17aNPkNcl3APRz42",
+      "name": "데이터분석"
+    }
+  ]
+}

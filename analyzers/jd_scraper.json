@@ -1,0 +1,623 @@
+{
+  "name": "JD 스크랩",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "content",
+              "cssSelector": "section section article"
+            },
+            {
+              "key": "title",
+              "cssSelector": "meta[name=\"description\"]",
+              "returnValue": "attribute",
+              "attribute": "content"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        200
+      ],
+      "id": "6bc8666d-065f-4c8e-89a4-d6aebe082257",
+      "name": "파싱"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "records",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        440,
+        200
+      ],
+      "id": "0a8f4a46-9d35-4f61-b66f-eb3bcb78083e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-flash-1.5",
+        "system_prompt": "너는 채용정보 텍스트에서 데이터를 추출하는 분석가야.\n아래 Json 형식으로 관련내용을 파싱해줘.\n'''json 같은 코드 블록을 생성하지 말고, 오직 Json 문자열만 출력해줘.\n기타 설명은 절대 출력하지 말고, 형식에 맞는 json 문자열만 출력해.\n적당한 파싱 정보가 없다면, null로 입력해줘.\n\n* json 형식(예시)\n{\n   \"id: \"28113\", # 회사ID\n   \"skills\" : ['Python', 'Sql', ...], # 요구되는 스킬/경험\n   \"career\" : 4.5,  # 경력연수\n   \"education\" : \"석사 졸\",  # 학력기준\n   \"extraPoint\" : \"자격증 우대\"  # 우대사항\n}\n",
+        "message": "=* 회사ID : {{ $json.id }}\n* 채용공고 제목\n{{ $json.jdTitle }}\n* 채용공고 내용\n{{ $json.jdContent }}",
+        "temperature": 0.5,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-openrouter.openRouter",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        200
+      ],
+      "id": "fb986afb-a99f-4cf7-9bdb-0349ab7911c0",
+      "name": "OpenRouter",
+      "credentials": {
+        "openRouterApi": {
+          "id": "TRFUUu8we25wr7Pg",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('변수 설정').item.json.googleSpreadSheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('변수 설정').item.json.sheetName }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "companyName": "={{ $json.companyName }}",
+            "position": "={{ $json.position }}",
+            "detailPageUrl": "={{ $json.detailPageUrl }}",
+            "jdTitle": "={{ $json.jdTitle }}",
+            "jdContent": "={{ $json.jdContent }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detailPageUrl",
+              "displayName": "detailPageUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jdTitle",
+              "displayName": "jdTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jdContent",
+              "displayName": "jdContent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "skill",
+              "displayName": "skill",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "career",
+              "displayName": "career",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "education",
+              "displayName": "education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "extraPoint",
+              "displayName": "extraPoint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "embedding",
+              "displayName": "embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1320,
+        200
+      ],
+      "id": "57cb03aa-844a-4581-b0f5-fa0408edb617",
+      "name": "데이터 삽입",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let basicInfo = $('전처리').first().json.records;\nreturn $input.all().map((e, i) => { return{\n  id: basicInfo[i]['id'],\n  companyName: basicInfo[i]['companyName'],\n  position: basicInfo[i]['position'],\n  detailPageUrl: basicInfo[i]['detailPageUrl'],\n  jdTitle: e.json.title,\n  jdContent: e.json.content\n}})"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        200
+      ],
+      "id": "6ff7ddf0-0590-4d4a-a70d-cb177179c266",
+      "name": "병합"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "records",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        200
+      ],
+      "id": "c9d9b43d-642f-483b-9bcf-2ee20b71b1b4",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "mode": "list",
+          "cachedResultName": "채용공고DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 832527891,
+          "mode": "list",
+          "cachedResultName": "JD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ/edit#gid=832527891"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "skill": "={{ $json.skills }}",
+            "id": "={{ $json.id }}",
+            "career": "={{ $json.career }}",
+            "education": "={{ $json.education }}",
+            "extraPoint": "={{ $json.extraPoint }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detailPageUrl",
+              "displayName": "detailPageUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jdTitle",
+              "displayName": "jdTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jdContent",
+              "displayName": "jdContent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "skill",
+              "displayName": "skill",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "career",
+              "displayName": "career",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "education",
+              "displayName": "education",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "extraPoint",
+              "displayName": "extraPoint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "embedding",
+              "displayName": "embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2200,
+        200
+      ],
+      "id": "34c9612e-e398-4dba-afcd-e6363f133522",
+      "name": "JD 삽입",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RPDt3rL1xfWaPW5s",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "curl 'https://www.wanted.co.kr/api/chaos/search/v1/position?1746999800585=&query=%EB%8D%B0%EC%9D%B4%ED%84%B0&country=kr&years=-1&locations=all&sort=job.recommend_order&limit=100&offset=0' \\\n  -H 'accept: application/json, text/plain, */*' \\\n  -H 'accept-language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' \\\n  -H 'cache-control: no-cache' \\\n  -b 'AMP_MKTG_d08dcdfb83=JTdCJTdE; utm=?query=%25EB%25A7%2588%25EC%25BC%2580%25ED%2584%25B0&tab=overview; _gcl_au=1.1.1316258490.1746956882; _ga=GA1.1.1786431339.1746956883; _fwb=1371Jbdp7iFDioHYyO4R72Y.1746956882586; _fbp=fb.2.1746956882625.45742105145996536; airbridge_migration_metadata__wantedlab=%7B%22version%22%3A%221.10.69%22%7D; ab180ClientId=59816784-ca5e-4295-8c49-2b5ef38b0bc6; airbridge_user=%7B%22externalUserID%22%3Anull%2C%22externalUserEmail%22%3Anull%2C%22externalUserPhone%22%3Anull%2C%22alias%22%3A%7B%7D%2C%22attributes%22%3A%7B%7D%7D; airbridge_device_alias=%7B%22amplitude_device_id%22%3A%22309146c2-c955-4a60-95d8-cd739c0ff367%22%2C%22braze_device_id%22%3A%22aed11d0e-d930-b44a-e06e-6f2ff0538f92%22%7D; ab.storage.deviceId.97672243-0e93-4d7d-890f-ea3507df4abe=%7B%22g%22%3A%22b36fdab7-16e4-421d-05c2-fd4087c43d29%22%2C%22c%22%3A1746999763017%2C%22l%22%3A1746999763017%7D; __rtbh.uid=%7B%22eventType%22%3A%22uid%22%2C%22id%22%3A%22undefined%22%2C%22expiryDate%22%3A%222026-05-11T21%3A42%3A51.997Z%22%7D; AMP_d08dcdfb83=JTdCJTIyZGV2aWNlSWQlMjIlM0ElMjIzMDkxNDZjMi1jOTU1LTRhNjAtOTVkOC1jZDczOWMwZmYzNjclMjIlMkMlMjJ1c2VySWQlMjIlM0FudWxsJTJDJTIyc2Vzc2lvbklkJTIyJTNBMTc0Njk1Njg4MTkxMiUyQyUyMm9wdE91dCUyMiUzQWZhbHNlJTJDJTIybGFzdEV2ZW50VGltZSUyMiUzQTE3NDY5OTk3NzE5OTklMkMlMjJsYXN0RXZlbnRJZCUyMiUzQTElMkMlMjJwYWdlQ291bnRlciUyMiUzQTAlN0Q=; _ga_JMVHE9R721=GS2.1.s1746999769$o2$g1$t1746999773$j56$l0$h0; _dd_s=rum=0&expire=1747000700531' \\\n  -H 'pragma: no-cache' \\\n  -H 'priority: u=1, i' \\\n  -H 'referer: https://www.wanted.co.kr/search?query=%EB%8D%B0%EC%9D%B4%ED%84%B0&tab=position' \\\n  -H 'sec-ch-ua: \"Google Chrome\";v=\"135\", \"Not-A.Brand\";v=\"8\", \"Chromium\";v=\"135\"' \\\n  -H 'sec-ch-ua-mobile: ?0' \\\n  -H 'sec-ch-ua-platform: \"macOS\"' \\\n  -H 'sec-fetch-dest: empty' \\\n  -H 'sec-fetch-mode: cors' \\\n  -H 'sec-fetch-site: same-origin' \\\n  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \\\n  -H 'wanted-user-agent: user-web' \\\n  -H 'wanted-user-country: KR' \\\n  -H 'wanted-user-language: ko'"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ],
+      "id": "1560e6be-a638-48ad-9497-36947ae76a2e",
+      "name": "크롤링"
+    },
+    {
+      "parameters": {
+        "jsCode": "let result = JSON.parse($input.first().json.stdout);\nlet records = result.data.map(e => {\n  return {\n    id : e.id,\n    companyName : e.company.name,\n    position: e.position,\n    detailPageUrl: 'https://www.wanted.co.kr/wd/' + e.id,\n    \n  }\n})\n\nreturn {\n  records : records\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        200
+      ],
+      "id": "29d8ac88-8f97-48d6-9c35-2c4ccbceeae3",
+      "name": "전처리"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.detailPageUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        200
+      ],
+      "id": "8a193419-a042-4bc5-bf8d-f7070c4228c9",
+      "name": "상세페이지 스크랩"
+    },
+    {
+      "parameters": {
+        "jsCode": "let records = $input.all();\nreturn {\n  records : records.map(e => JSON.parse(e.json.response.replaceAll('```json', '').replaceAll('```', '')))\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        200
+      ],
+      "id": "7979f775-3e40-4b8b-8409-1fb67171b36b",
+      "name": "JSON 파싱"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "googleSpreadSheetId"
+            },
+            {
+              "name": "sheetName"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -260,
+        200
+      ],
+      "id": "752e4485-de02-4b55-a839-531ec855afc0",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "googleSpreadSheetId": "16n3ZNEEVyfEok6ENe2vW1q4gQHtkUOKipIJZHOEEbPQ",
+          "sheetName": "JD"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "파싱": {
+      "main": [
+        [
+          {
+            "node": "병합",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "상세페이지 스크랩",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "JSON 파싱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "데이터 삽입": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "병합": {
+      "main": [
+        [
+          {
+            "node": "데이터 삽입",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "JD 삽입",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "크롤링": {
+      "main": [
+        [
+          {
+            "node": "전처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "전처리": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "상세페이지 스크랩": {
+      "main": [
+        [
+          {
+            "node": "파싱",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON 파싱": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "크롤링",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4ee1ea1c-998a-4fae-a34d-fda69abe651b",
+  "meta": {
+    "instanceId": "ae59e3c4dbc3b4aab3d81fc78280645903de4834ef0fa1a8e01178181c7a57a4"
+  },
+  "id": "b1RoBWKWcquZom4U",
+  "tags": [
+    {
+      "createdAt": "2025-05-13T21:48:46.312Z",
+      "updatedAt": "2025-05-13T21:48:46.312Z",
+      "id": "17aNPkNcl3APRz42",
+      "name": "데이터분석"
+    }
+  ]
+}
