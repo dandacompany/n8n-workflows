@@ -1,0 +1,358 @@
+{
+  "name": "Knowledge-Based Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## 사용자 요청 메세지\n{{ $('Chat').item.json.chatInput ?? $('Chat').item.json.message }}",
+        "options": {
+          "systemMessage": "# 역할 및 개요\n당신은 '단테지식베이스 챗봇'이라는 이름의 저장된 지식문서를 기반으로 질문자에게 정보를 제공하기 위한 전문 AI 상담 도우미입니다. 당신의 임무는, 내부 문서에서만 찾을 수 있는 최신·정확한 정보만을 활용해, 사용자에게 신뢰할 수 있는 답을 제공하는 것입니다. \n사적인 견해나 추측 없이, 오직 가이드/매뉴얼/FAQ/운영·제품 문서 등에서 근거를 추출해 설명합니다. \n\n# 목표\n당신의 궁극적 목표는, 제공된 복띵 관련 매뉴얼 및 브랜드 공식 문서에서 **명확히 근거가 확인되는 정보만을 근거로** 사용자 질의에 정확하게 답변하는 것입니다. \n\n# 지침\n당신은 RAG(Retrieval-Augmented Generation) 기반으로 동작합니다. \n사용자 질문이 들어오면, Think 도구를 통해서 작업을 수행하기 전 과 도중에 검색어, 사용한 검색 도구, 검색결과의 적절성, 그 다음 행동에 대한 생각을 합니다.\n그에 맞춰서 복띵 내부/공식 문서의 벡터 데이터베이스(Retrieve Documents, Search Web)에서 적합한 내용을 검색(조회)하여, 아래 규칙을 반드시 따릅니다.\n문서 검색을 하고 답변을 찾지 못한 경우 웹 검색 도구를 사용해서 적절한 내용이 나올때까지 2-3차례 검색을 진행을 더 할수 있습니다.\n\n- 단일 진실의 원칙:\n  답변은 무조건 제공된 내부 문서 정보만에서 도출되어야 하며,\n  문서에 근거 없는 추가 설명·해석·추천·추측은 금지합니다.\n\n- 정확성 및 암시적 인용:\n  문서의 내용을 가감 없이 최대한 \"있는 그대로\" 쓰되,\n  정보를 더 명확하게 다듬어 명료하게 전달합니다.\n  단, 문서를 벗어난 사견/지식/예시는 절대 포함하면 안 됩니다.\n  본인은 내부 문서에 대해 아는 전문가처럼 행동합니다.\n\n- 툴 및 RAG 언급 금지:\n  툴이나 데이터 검색 과정, RAG 시스템임을 설명하거나 언급하지 않습니다.\n  오직 공식 상담원처럼 행동하고, 내부문서의 신뢰성만 강조하세요.\n\n- 명확성:\n  간결하고, 핵심만을 바로 설명합니다.\n\n- 구조화:\n  문서에 단계, 절차, 목록, 예시, 표, 안내 메시지가 있으면\n  불릿/순서 목록 · 간결 문단 · 마크다운 표 · 코드 블록 등\n  Markdown 형식으로 보기 좋게 정돈합니다.\n\n- 어조:\n  신뢰감 있고 전문적이며, 친절하게 답변합니다.\n  불확실하거나, 문서에 없는 정보는 \"공식 문서에 근거 정보가 확인되지 않습니다.\"\n  처럼 단호하게 안내합니다.\n\n# 사용가능한 도구\n- Retrieve Documents : 질문과 유관한 저장된 문서를 조회합니다.\n- Search Web : 웹검색엔진을 사용해서 웹문서를 검색합니다.\n- Think : 검색어, 사용한 검색 도구, 검색결과의 적절성, 그 다음 행동에 대한 생각을 합니다."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        48
+      ],
+      "id": "80d526d5-a521-454e-a8cd-a3145b9c17f9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        304
+      ],
+      "id": "167385a0-3d98-4f70-bcb8-ef90f09f02d5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        592,
+        304
+      ],
+      "id": "4e47cc9c-1e1b-40f7-8191-a23f8011db7c",
+      "name": "Search Web",
+      "credentials": {
+        "serpApi": {
+          "id": "T4bZlm27Vr1FAe9L",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "사용자의 요청을 잘 처리하기 위해서, 적절한 검색어를 고민하고, 각 도구를 사용후 사용자의 요청에 적합한지 판단하고 그 다음 행동을 결정할때 사용합니다.\n생각한 내용을 컨텍스트 메모리에 추가해줄뿐 다른 동작은 하지 않습니다."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        304
+      ],
+      "id": "7600abd2-83b1-4a8b-98aa-570c7952d003",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use RAG to look up information in the knowledgebase.",
+        "tableName": "=document_records",
+        "topK": 25,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        304
+      ],
+      "id": "589d5cd7-b6e1-42e0-980b-3f2cebaa1512",
+      "name": "Retrieve Records",
+      "credentials": {
+        "postgres": {
+          "id": "nPW0q9pDnNdDkIW6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        480
+      ],
+      "id": "99b0b31a-ea76-44e5-af8c-d0b4d6985fb6",
+      "name": "Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "pw6IjlzOpntYd9RS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        432,
+        480
+      ],
+      "id": "99d582fe-b5da-42a6-99f2-7812347ad0c4",
+      "name": "Reranker",
+      "credentials": {
+        "cohereApi": {
+          "id": "KLtWUKzVXKp4XGqC",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "home",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        928
+      ],
+      "id": "4c4acc9d-24ea-4152-911f-3ac161c9b5ab",
+      "name": "Webhook",
+      "webhookId": "4224c4d7-bdb4-462f-b60e-517412a3bb6c"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Dante Labs</title>\n    <!-- FontAwesome CDN -->\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;\n            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);\n            color: #fff;\n            line-height: 1.6;\n            overflow-x: hidden;\n        }\n        \n        /* Navigation */\n        nav {\n            position: fixed;\n            top: 0;\n            width: 100%;\n            background: rgba(10, 14, 39, 0.95);\n            backdrop-filter: blur(10px);\n            z-index: 1000;\n            padding: 1rem 0;\n            box-shadow: 0 2px 20px rgba(0,0,0,0.3);\n        }\n        \n        .nav-container {\n            max-width: 1200px;\n            margin: 0 auto;\n            padding: 0 2rem;\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n        }\n        \n        .logo {\n            font-size: 1.5rem;\n            font-weight: bold;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            text-decoration: none;\n        }\n        \n        .nav-links {\n            display: flex;\n            gap: 2rem;\n            align-items: center;\n        }\n        \n        .nav-links a {\n            color: #fff;\n            text-decoration: none;\n            transition: color 0.3s;\n            font-size: 0.95rem;\n        }\n        \n        .nav-links a:hover {\n            color: #667eea;\n        }\n        \n        .contact-btn {\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            padding: 0.5rem 1.5rem;\n            border-radius: 25px;\n            color: white !important;\n            transition: transform 0.3s;\n        }\n        \n        .contact-btn:hover {\n            transform: translateY(-2px);\n            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);\n        }\n        \n        /* Hero Section */\n        .hero {\n            margin-top: 80px;\n            padding: 4rem 2rem;\n            min-height: 80vh;\n            display: flex;\n            align-items: center;\n            position: relative;\n            overflow: hidden;\n        }\n        \n        .hero-container {\n            max-width: 1200px;\n            margin: 0 auto;\n            width: 100%;\n            position: relative;\n            z-index: 2;\n        }\n        \n        .hero-content {\n            text-align: center;\n        }\n        \n        .hero h1 {\n            font-size: clamp(2.5rem, 5vw, 4rem);\n            margin-bottom: 1.5rem;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            animation: fadeInUp 1s ease-out;\n        }\n        \n        .hero-description {\n            font-size: 1.2rem;\n            margin-bottom: 2rem;\n            opacity: 0.9;\n            max-width: 700px;\n            margin-left: auto;\n            margin-right: auto;\n            animation: fadeInUp 1s ease-out 0.2s;\n            animation-fill-mode: backwards;\n        }\n        \n        .cta-button {\n            display: inline-block;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 1rem 2.5rem;\n            border-radius: 30px;\n            text-decoration: none;\n            font-size: 1.1rem;\n            font-weight: 500;\n            transition: all 0.3s;\n            animation: fadeInUp 1s ease-out 0.4s;\n            animation-fill-mode: backwards;\n        }\n        \n        .cta-button:hover {\n            transform: translateY(-3px);\n            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);\n        }\n        \n        /* Services Section */\n        .services {\n            padding: 4rem 2rem;\n            background: rgba(26, 31, 58, 0.5);\n        }\n        \n        .section-title {\n            text-align: center;\n            font-size: 2.5rem;\n            margin-bottom: 3rem;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n        }\n        \n        .services-grid {\n            max-width: 1200px;\n            margin: 0 auto;\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n            gap: 2rem;\n        }\n        \n        .service-card {\n            background: rgba(255, 255, 255, 0.05);\n            padding: 2rem;\n            border-radius: 15px;\n            backdrop-filter: blur(10px);\n            transition: transform 0.3s, box-shadow 0.3s;\n            border: 1px solid rgba(255, 255, 255, 0.1);\n        }\n        \n        .service-card:hover {\n            transform: translateY(-5px);\n            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);\n            background: rgba(255, 255, 255, 0.08);\n        }\n        \n        .service-icon {\n            font-size: 3rem;\n            margin-bottom: 1rem;\n            display: block;\n        }\n        \n        .service-title {\n            font-size: 1.3rem;\n            margin-bottom: 1rem;\n            color: #fff;\n        }\n        \n        .service-description {\n            color: rgba(255, 255, 255, 0.7);\n            line-height: 1.6;\n        }\n        \n        /* Stats Section */\n        .stats {\n            padding: 4rem 2rem;\n            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));\n        }\n        \n        .stats-container {\n            max-width: 1200px;\n            margin: 0 auto;\n            text-align: center;\n        }\n        \n        .stats-intro {\n            max-width: 700px;\n            margin: 0 auto 3rem;\n        }\n        \n        .stats-intro h2 {\n            font-size: 2rem;\n            margin-bottom: 1rem;\n        }\n        \n        .stats-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n            gap: 2rem;\n            margin-top: 3rem;\n        }\n        \n        .stat-item {\n            padding: 1.5rem;\n        }\n        \n        .stat-number {\n            font-size: 2.5rem;\n            font-weight: bold;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            margin-bottom: 0.5rem;\n        }\n        \n        .stat-label {\n            color: rgba(255, 255, 255, 0.7);\n        }\n        \n        /* Customer Reviews */\n        .reviews {\n            padding: 4rem 2rem;\n            background: rgba(26, 31, 58, 0.3);\n        }\n        \n        .reviews-container {\n            max-width: 1200px;\n            margin: 0 auto;\n        }\n        \n        .reviews-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n            gap: 2rem;\n        }\n        \n        .review-card {\n            background: rgba(255, 255, 255, 0.05);\n            padding: 2rem;\n            border-radius: 15px;\n            backdrop-filter: blur(10px);\n            border: 1px solid rgba(255, 255, 255, 0.1);\n        }\n        \n        .review-header {\n            display: flex;\n            align-items: center;\n            margin-bottom: 1rem;\n        }\n        \n        .review-avatar {\n            width: 50px;\n            height: 50px;\n            border-radius: 50%;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            margin-right: 1rem;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            font-weight: bold;\n        }\n        \n        .review-text {\n            color: rgba(255, 255, 255, 0.9);\n            font-style: italic;\n            margin-bottom: 1rem;\n        }\n        \n        .review-stars {\n            color: #ffd700;\n        }\n        \n        /* CTA Section */\n        .cta-section {\n            padding: 5rem 2rem;\n            text-align: center;\n            background: linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));\n        }\n        \n        .cta-section h2 {\n            font-size: 2.5rem;\n            margin-bottom: 1rem;\n            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n        }\n        \n        .cta-section p {\n            font-size: 1.2rem;\n            margin-bottom: 2rem;\n            color: rgba(255, 255, 255, 0.9);\n        }\n        \n        /* Footer */\n        footer {\n            padding: 2rem;\n            text-align: center;\n            background: rgba(10, 14, 39, 0.95);\n            color: rgba(255, 255, 255, 0.6);\n        }\n        \n        /* Animations */\n        @keyframes fadeInUp {\n            from {\n                opacity: 0;\n                transform: translateY(30px);\n            }\n            to {\n                opacity: 1;\n                transform: translateY(0);\n            }\n        }\n        \n        /* Background Animation */\n        .hero::before {\n            content: '';\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            background-image: \n                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),\n                radial-gradient(circle at 80% 50%, rgba(118, 75, 162, 0.2) 0%, transparent 50%);\n            animation: pulse 15s ease-in-out infinite;\n        }\n        \n        @keyframes pulse {\n            0%, 100% { opacity: 0.5; transform: scale(1); }\n            50% { opacity: 0.8; transform: scale(1.1); }\n        }\n        \n        /* Mobile Responsive */\n        @media (max-width: 768px) {\n            .nav-links {\n                display: none;\n            }\n            \n            .mobile-menu {\n                display: block;\n            }\n            \n            .hero h1 {\n                font-size: 2rem;\n            }\n            \n            .hero-description {\n                font-size: 1rem;\n            }\n            \n            .services-grid,\n            .reviews-grid {\n                grid-template-columns: 1fr;\n            }\n            \n            .stats-grid {\n                grid-template-columns: repeat(2, 1fr);\n            }\n        }\n        \n        /* Scroll Animation */\n        .scroll-animate {\n            opacity: 0;\n            transform: translateY(30px);\n            transition: opacity 0.6s, transform 0.6s;\n        }\n        \n        .scroll-animate.visible {\n            opacity: 1;\n            transform: translateY(0);\n        }\n    </style>\n    <script src=\"https://cdn.jsdelivr.net/npm/n8n-widget-bot@latest/dist/n8n-widget-bot.min.js\"></script>\n    <script>\n        // Initialize the widget after the DOM is fully loaded\n        document.addEventListener('DOMContentLoaded', function() {\n            FloatingChatWidget.init({\n              themeColor: '#4C4CBBFF',\n              title: '단테 지식베이스 챗봇',\n              placeholder: '메세지를 입력하세요...',\n              welcomeMessage: '안녕하세요! 무엇을 도와드릴까요?',\n              position: 'bottom-right',\n              fontFamily: 'Noto Sans KR, Arial, sans-serif',\n              resizable: true, // Enable resize feature\n              minWidth: 300,   // Minimum width\n              maxWidth: 600,   // Maximum width\n              minHeight: 400,  // Minimum height\n              maxHeight: 800,  // Maximum height\n              apiUrl: 'https://n8n.dantelabs.pro/webhook/7add635d-b495-453a-8da5-ad62a7040ff9/chat'\n            });\n        });\n    </script>\n</head>\n\n<body>\n    \n    <!-- Navigation -->\n    <nav>\n        <div class=\"nav-container\">\n            <a href=\"#\" class=\"logo\">Dante Labs</a>\n            <div class=\"nav-links\">\n                <a href=\"#\">Home</a>\n                <a href=\"#\">Profile</a>\n                <a href=\"#\">Resources</a>\n                <a href=\"#\">Classes</a>\n                <a href=\"#\" class=\"contact-btn\">Contact</a>\n            </div>\n        </div>\n    </nav>\n\n    <!-- Hero Section -->\n    <section class=\"hero\">\n        <div class=\"hero-container\">\n            <div class=\"hero-content\">\n                <h1>Dante Labs: AI automation</h1>\n                <p class=\"hero-description\">\n                    Discover the potential of intelligent agents that make your daily life easier.<br>\n                    From the concept and practical use of MCP to the latest trends in AI - Dante Labs delivers it all in a fun and easy-to-understand way.\n                </p>\n                <a href=\"#\" class=\"cta-button\">Get Started</a>\n            </div>\n        </div>\n    </section>\n\n    <!-- Services Section -->\n    <section class=\"services\">\n        <h2 class=\"section-title\">Technology & Services</h2>\n        <div class=\"services-grid\">\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">📚</span>\n                <h3 class=\"service-title\">Fullstack Reference</h3>\n                <p class=\"service-description\">Hands-on examples with Python, TypeScript, serverless, and more</p>\n            </div>\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">💻</span>\n                <h3 class=\"service-title\">Open Source Templates</h3>\n                <p class=\"service-description\">Sample repositories integrating LangChain, OpenAI, Claude</p>\n            </div>\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">👥</span>\n                <h3 class=\"service-title\">Code Review & Q&A</h3>\n                <p class=\"service-description\">Accelerate your growth with community feedback</p>\n            </div>\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">🎓</span>\n                <h3 class=\"service-title\">MCP Lectures & Workshops</h3>\n                <p class=\"service-description\">Concept lectures for beginners, advanced hands-on for professionals</p>\n            </div>\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">🤝</span>\n                <h3 class=\"service-title\">Consulting & Partnership</h3>\n                <p class=\"service-description\">Agent design and automation consulting, in-house training programs</p>\n            </div>\n            <div class=\"service-card scroll-animate\">\n                <span class=\"service-icon\">📖</span>\n                <h3 class=\"service-title\">Custom Curriculum</h3>\n                <p class=\"service-description\">Understand → Apply → Expand, a 3-step curriculum</p>\n            </div>\n        </div>\n    </section>\n\n    <!-- Stats Section -->\n    <section class=\"stats\">\n        <div class=\"stats-container\">\n            <div class=\"stats-intro\">\n                <h2>Real-World Automation Journey with Dante Labs</h2>\n                <p>Sharing 15 years of practical experience from major enterprises!</p>\n                <p>💠 Lecturing experience at Inflearn, Visang Education, Kookmin University, and more</p>\n                <p>No more theory-only lectures. Learn living automation you can use right away in the field.</p>\n            </div>\n            <div class=\"stats-grid\">\n                <div class=\"stat-item scroll-animate\">\n                    <div class=\"stat-number\">7.5K+</div>\n                    <div class=\"stat-label\">Subscribers</div>\n                </div>\n                <div class=\"stat-item scroll-animate\">\n                    <div class=\"stat-number\">15 Year+</div>\n                    <div class=\"stat-label\">Industry Experience</div>\n                </div>\n                <div class=\"stat-item scroll-animate\">\n                    <div class=\"stat-number\">1.4M</div>\n                    <div class=\"stat-label\">Views</div>\n                </div>\n                <div class=\"stat-item scroll-animate\">\n                    <div class=\"stat-number\">4.8+</div>\n                    <div class=\"stat-label\">Student Rating</div>\n                </div>\n            </div>\n        </div>\n    </section>\n\n    <!-- Customer Reviews -->\n    <section class=\"reviews\">\n        <div class=\"reviews-container\">\n            <h2 class=\"section-title\">Customers Say About Us</h2>\n            <div class=\"reviews-grid\">\n                <div class=\"review-card scroll-animate\">\n                    <div class=\"review-header\">\n                        <div class=\"review-avatar\">Y</div>\n                        <div class=\"review-name\">Y*ho</div>\n                    </div>\n                    <p class=\"review-text\">\"Explaining the MCP concept with real-world examples helped our entire dev team level up.\"</p>\n                    <div class=\"review-stars\">⭐⭐⭐⭐⭐</div>\n                </div>\n                <div class=\"review-card scroll-animate\">\n                    <div class=\"review-header\">\n                        <div class=\"review-avatar\">P</div>\n                        <div class=\"review-name\">P*jun</div>\n                    </div>\n                    <p class=\"review-text\">\"Thanks to Dante Labs, I built a data pipeline in just 3 hours.\"</p>\n                    <div class=\"review-stars\">⭐⭐⭐⭐⭐</div>\n                </div>\n                <div class=\"review-card scroll-animate\">\n                    <div class=\"review-header\">\n                        <div class=\"review-avatar\">K</div>\n                        <div class=\"review-name\">K*yeon</div>\n                    </div>\n                    <p class=\"review-text\">\"Even as a developer, learning marketing automation gave me a new perspective. The n8n and Claude integration was especially impressive!\"</p>\n                    <div class=\"review-stars\">⭐⭐⭐⭐⭐</div>\n                </div>\n            </div>\n        </div>\n    </section>\n\n    <!-- CTA Section -->\n    <section class=\"cta-section\">\n        <h2>Ready to level up your AI automation skills?</h2>\n        <p>Stop wasting time on repetitive tasks tomorrow, next week, or next month.<br>\n        Dante Labs will help you level up your AI automation!</p>\n        <a href=\"#\" class=\"cta-button\">Contact Us</a>\n    </section>\n\n    <!-- Footer -->\n    <footer>\n        <p>© 2025 dante-labs. All rights reserved.</p>\n    </footer>\n\n    <script>\n        // Smooth scrolling for navigation links\n        document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {\n            anchor.addEventListener('click', function (e) {\n                e.preventDefault();\n                const target = document.querySelector(this.getAttribute('href'));\n                if (target) {\n                    target.scrollIntoView({\n                        behavior: 'smooth'\n                    });\n                }\n            });\n        });\n\n        // Scroll animations\n        const observerOptions = {\n            threshold: 0.1,\n            rootMargin: '0px 0px -50px 0px'\n        };\n\n        const observer = new IntersectionObserver((entries) => {\n            entries.forEach(entry => {\n                if (entry.isIntersecting) {\n                    entry.target.classList.add('visible');\n                }\n            });\n        }, observerOptions);\n\n        // Observe all elements with scroll-animate class\n        document.querySelectorAll('.scroll-animate').forEach(el => {\n            observer.observe(el);\n        });\n\n        // Counter animation for stats\n        function animateValue(element, start, end, duration) {\n            let startTimestamp = null;\n            const step = (timestamp) => {\n                if (!startTimestamp) startTimestamp = timestamp;\n                const progress = Math.min((timestamp - startTimestamp) / duration, 1);\n                const value = Math.floor(progress * (end - start) + start);\n                element.textContent = element.dataset.suffix ? value + element.dataset.suffix : value;\n                if (progress < 1) {\n                    window.requestAnimationFrame(step);\n                }\n            };\n            window.requestAnimationFrame(step);\n        }\n\n        // Animate stats when they come into view\n        const statsObserver = new IntersectionObserver((entries) => {\n            entries.forEach(entry => {\n                if (entry.isIntersecting && !entry.target.animated) {\n                    entry.target.animated = true;\n                    const statNumbers = entry.target.querySelectorAll('.stat-number');\n                    statNumbers.forEach(stat => {\n                        const text = stat.textContent;\n                        if (text.includes('K')) {\n                            const value = parseFloat(text) * 1000;\n                            stat.dataset.suffix = '+';\n                            animateValue(stat, 0, value / 1000, 2000);\n                            setTimeout(() => {\n                                stat.textContent = text;\n                            }, 2100);\n                        } else if (text.includes('M')) {\n                            stat.textContent = text;\n                        } else if (text.includes('Year')) {\n                            stat.textContent = text;\n                        } else if (text.includes('+')) {\n                            stat.textContent = text;\n                        }\n                    });\n                }\n            });\n        }, { threshold: 0.5 });\n\n        document.querySelectorAll('.stats-grid').forEach(el => {\n            statsObserver.observe(el);\n        });\n\n        // Parallax effect for hero section\n        window.addEventListener('scroll', () => {\n            const scrolled = window.pageYOffset;\n            const parallax = document.querySelector('.hero');\n            if (parallax) {\n                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;\n            }\n        });\n\n        // Add hover effect to service cards\n        document.querySelectorAll('.service-card').forEach(card => {\n            card.addEventListener('mouseenter', function() {\n                this.style.transform = 'translateY(-10px) scale(1.02)';\n            });\n            card.addEventListener('mouseleave', function() {\n                this.style.transform = 'translateY(0) scale(1)';\n            });\n        });\n    </script>\n</body>\n\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        928
+      ],
+      "id": "79eb7e52-e83b-46ef-bbe2-a30547d9a215",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        304
+      ],
+      "id": "cb408f8d-8d61-4726-a57a-da6256415a11",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "cCMPZGsBGfoRtzaW",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# RAG 챗봇 서비스 워크플로 (written by [DanteLabs](https://youtube.com/@dante-labs))",
+        "height": 80,
+        "width": 1264,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "e760ebec-f6e7-4289-8da2-a26ca4e4590d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 2) 샘플 랜딩페이지 및 챗봇 임베드",
+        "height": 240,
+        "width": 1264,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        864
+      ],
+      "typeVersion": 1,
+      "id": "acadc7cb-abd1-48b8-82e6-a87bb193a303",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 1) 챗봇 UI (프론트엔드) / AI에이전트 (백엔드)",
+        "height": 832,
+        "width": 1264,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -16
+      ],
+      "typeVersion": 1,
+      "id": "7b7b6bfc-a8ec-4334-9b17-86ef84cc4fbe",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "application/pdf,text/*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        48
+      ],
+      "id": "a77b5958-1950-4c5f-a1ed-b8d1809b246b",
+      "name": "Chat",
+      "webhookId": "7add635d-b495-453a-8da5-ad62a7040ff9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Web": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Records": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve Records",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Retrieve Records",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "abed2ff1-67fa-4f3a-bbe1-9df2f744f16e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8e91b154e6724206430c850990ab6b209c9a6fc90227920f9309035230a4a120"
+  },
+  "id": "D6wHqVIHS5e99DPk",
+  "tags": []
+}

@@ -1,0 +1,106 @@
+{
+  "name": "Upload to GCS",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "bucketName"
+            },
+            {
+              "name": "objectName"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "Parameters",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        352
+      ],
+      "id": "e3a92300-7794-48c0-adcf-5bb557c4a6e2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "create",
+        "bucketName": "={{ $('Parameters').item.json.bucketName }}",
+        "objectName": "={{ $('Parameters').item.json.objectName }}",
+        "createData": {},
+        "createQuery": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        688,
+        352
+      ],
+      "id": "45aba019-695b-4d1c-86cc-318dc7deb156",
+      "name": "Create an object",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Parameters": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create an object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "569152b9-246b-4994-87f1-5a93648baaa3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8e91b154e6724206430c850990ab6b209c9a6fc90227920f9309035230a4a120"
+  },
+  "id": "oN1bXctlVmn0PTyK",
+  "tags": []
+}

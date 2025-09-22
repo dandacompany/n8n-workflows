@@ -1,0 +1,1172 @@
+{
+  "name": "Agentic RAG Manager",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "rag"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -1056,
+        -304
+      ],
+      "id": "cd819a4e-f944-4824-91a1-761b9f3696fa",
+      "name": "MCP Server Trigger",
+      "webhookId": "4ec98da3-4b1c-419a-8fa9-b14e962365d3",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "57arTddOqzDegtgV",
+          "name": "My Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Execute a SQL query in Postgres",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI('query', 'SQL statement', 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -1040,
+        -48
+      ],
+      "id": "c7a708b9-8fa9-47ce-9fbe-10c9491ca5af",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "nPW0q9pDnNdDkIW6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.content || $json.data || $json.text || $json.concatenated_data }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=file_id",
+                "value": "={{ $('Get metadata').item.json.id }}"
+              },
+              {
+                "name": "=file_name",
+                "value": "={{ $('Get metadata').item.json.name }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "baf2a6fc-e05a-4a17-8615-d69c9171d291",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        176,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 800,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        208,
+        816
+      ],
+      "id": "cd7f5111-0cee-4814-82f4-14cd990bdccd",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bucketName"
+            },
+            {
+              "name": "objectName"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1232,
+        576
+      ],
+      "id": "afb9a404-0e30-44af-bbc3-27ff99f561af",
+      "name": "Parameter"
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "get",
+        "bucketName": "={{ $json.bucket }}",
+        "objectName": "={{ $json.name }}",
+        "alt": "media",
+        "getParameters": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        576
+      ],
+      "id": "68aadeca-cb3a-4472-be5a-ff22eda1b885",
+      "name": "Get object",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Get metadata').item.json.contentType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5fe78f9b-2ff3-4adc-954e-53bfce35c142"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b69f5605-0179-4b02-9a32-e34bb085f82d",
+                    "leftValue": "={{ $('Get metadata').item.json.contentType }}",
+                    "rightValue": "text/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "plain text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "62927e38-86a9-4252-9a84-97eb08d9c045",
+                    "leftValue": "={{ $('Get metadata').item.json.contentType }}",
+                    "rightValue": "[\"application/msword\", \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\"]",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "docs"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "61ce701f-b760-45d1-857c-97221e67ba82",
+      "name": "Switch1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "지원하지 않는 파일 형식입니다."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        768
+      ],
+      "id": "e319bcbd-01f8-423c-a829-833c3ffcb213",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": "=document_records",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        432
+      ],
+      "id": "d6224320-7252-4592-9de5-57ddb6cefe25",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "nPW0q9pDnNdDkIW6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "23948c00-d5c4-4d39-9c14-c5bd371d7159",
+      "name": "Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        32,
+        656
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "pw6IjlzOpntYd9RS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "61d9625e-e346-4589-9b14-608648946ca1",
+      "name": "Extract Document",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        592
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "f315b564-a1b5-425e-95f6-53822d3a1cb4",
+      "name": "Extract PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "description": "구글클라우드스토리지의 오브젝트명과 데이터베이스 테이블명(메타정보, 레코드정보)을 전달받아 해당 파일을 RAG DB시스템에 저장하는 도구",
+        "workflowId": {
+          "__rl": true,
+          "value": "pahZdH02fLoIz3Vg",
+          "mode": "list",
+          "cachedResultName": "RAG maker Workflows"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bucketName": "dante-docs",
+            "objectName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('objectName', `구글스토리지에 파일 오브젝트를 저장할때 사용할 파일 확장자명을 포함한 파일명`, 'string') }}",
+            "docRecordsTableName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('docRecordsTableName', `문서의 청크 레코드를 저장할 테이블명`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bucketName",
+              "displayName": "bucketName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "objectName",
+              "displayName": "objectName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "docRecordsTableName",
+              "displayName": "docRecordsTableName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1232,
+        -48
+      ],
+      "id": "02c49fdc-36d0-4a7a-ab61-6df6c3cb2998",
+      "name": "Save Document"
+    },
+    {
+      "parameters": {
+        "content": "# 문서 저장 로직",
+        "height": 688,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "cea1a89c-66ec-4e5f-bcd8-94743745c57e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -880,
+        128
+      ],
+      "id": "f3a51795-6980-49ee-967b-9451b486e36f",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "pw6IjlzOpntYd9RS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        128
+      ],
+      "id": "277ceeb8-c9a7-4f2d-80b4-5d87a75c13e5",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "KLtWUKzVXKp4XGqC",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use RAG to look up information in the knowledgebase.",
+        "tableName": "=document_records",
+        "topK": 25,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        -48
+      ],
+      "id": "f1ecfab6-cdd4-489e-a8ce-3c13f76f641a",
+      "name": "Retrieve Records",
+      "credentials": {
+        "postgres": {
+          "id": "nPW0q9pDnNdDkIW6",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "get",
+        "bucketName": "={{ $json.bucketName }}",
+        "objectName": "={{ $json.objectName }}",
+        "getParameters": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        576
+      ],
+      "id": "fc15c8e3-1df4-426e-aa51-fb895641068c",
+      "name": "Get metadata",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# 사용자 요청사항\n{{ $('Chat').item.json.chatInput }}\n# 첨부파일 정보(구글스토리지)\n{{ JSON.stringify($('Create an object').item.json) }}",
+        "options": {
+          "systemMessage": "=# 프로젝트명 : RAG시스템 생성 MCP 에이전트\n# 프로젝트 설명 : Postgresql(Supabase)에 RAG 시스템을 구현하고, 문서 저장 및 검색 질의를 수행합니다.\n\n# 프로젝트 지침\n\n## 페르소나\n당신은 RAG 시스템을 만들고, 문서를 저장하고, 검색질의를 도와주는 전문가입니다.\n\n## 목표\n사용자가 RAG를 새롭게 만들고자 하면, RAG용 테이블(메타정보, 레코드)를 만듭니다.\n구성된 RAG 시스템에 문서를 저장하고자 하면 해당 문서를 저장 요청합니다.\n사용자가 정보를 찾고자 하면, 저장된 문서에서 검색질의를 하여 정보를 찾아 내용을 보고합니다.\n\n## 사용가능한 도구\n1) RAG Tools : DB에 테이블을 구성하여 RAG용 문서를 저장할 수 있는 준비를 하고, 문서의 메타정보와 실제 레코드를 저장합니다.\n   - Execute a SQL Query : 테이블 생성, 삭제, 조회를 수행할때 쿼리를 작성해서 실행하는 도구.\n   - Save Document : 문서를 DB에 저장하는 도구.\n   - Retrieve Records : RAG를 위한 문서 검색 도구.\n2) GCS Tools : 구글스토리지 객체를 삭제하거나 조회하는 도구\n   - Delete a object from GCS : 구글스토리지에서 특정 버킷의 특정 객체 삭제\n   - List objects in GCS : 구글스토리지 특정 버킷의 객체 목록\n  \n## 상세지침\n1) 공통\n   - 반드시 RAG Tools와 GCS Tools 도구만 사용해서 임무를 수행합니다.\n   - 사용자가 초기화 해달라고 하면, 테이블을 전부 삭제하고, 구글스토리지 버킷의 파일도 모두 삭제합나다.\n   - RAG를 준비해달라고 하면, 초기화를 하고, 이미 초기화를 했다면 바로 메타정보 테이블과, 청크 레코드 테이블을 생성합니다.\n   - 하지만 초기화는 데이터를 전부 삭제하게되므로 반드시 사용자에게 초기화를 수행할지를 한번 물어봐야합니다.\n   - 주요 변수명\n     - 문서 메타정보 테이블명 : document_metadata\n     - 문서 청크 레코드 테이블명: document_records\n     - 구글스토리지 버킷명 : dante-docs\n\n2) DB 설계\n   - 사용자가 문서질의를 요청하면 해당 질의에 응답할수 있는 DB 테이블이 준비되었는지 확인한다. (List Tables)\n   - 사용자가 RAG를 위해 문서를 저장하려고 할때, 문서 저장용 메타정보 테이블과 문서 청크 레코드 저장용 테이블이 생성되어 있는지 스키마 정보와 함께 확인한다. 없으면 테이블을 먼저 생성한다.  \n3) 문서 CRUD\n   - 문서 저장 : 웹문서는 로컬로 다운로드하고, 로컬 파일 시스템에 파일을 준비한뒤에 구글스토리지에 먼저 업로드한다. 업로드한 뒤에 메타정보 테이블에 해당 문서 정보를 저장한다. 메타 정보를 저장하고 나서, Save Document 도구를 이용해서 문서 청크 레코드를 저장한다.\n   - 문서 목록 조회 : 아래 문서 목록 조회 쿼리 가이드에 따라 보유 문서를 확인한다.\n   - 문서 검색 : Retrieve Records 도구를 사용해서 RAG를 수행 한다.\n   - 문서 삭제 : 아래 문서 삭제 쿼리 가이드에 따라 삭제를 수행한다.\n\n\n## 쿼리 가이드\n1) 문서 메타정보 테이블 생성\n    ```sql\n    CREATE TABLE document_medadata (\n        id TEXT PRIMARY KEY,\n        title TEXT,\n        url TEXT,\n        created_at TIMESTAMP DEFAULT NOW(),\n        record_table TEXT\n    );\n    ```\n\n2) 문서 청크 레코드 테이블 생성\n    ```sql\n    CREATE TABLE document_records (\n        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),   -- ID 컬럼을 UUID로 자동 생성\n        embedding VECTOR,                                -- Vector Column Name (DB에 따라 VECTOR 타입 지원 필요)\n        text TEXT,                                       -- Content Column Name\n        metadata JSONB                                   -- Metadata Column Name\n    );\n    ```\n\n3) 문서 목록 조회\n   ```sql\n   select *\n   from document_medadata;\n   ```\n\n4) 특정 문서 레코드 조회\n    ```sql\n    select string_agg(text, ' ') as contents\n    from document_records\n    where metadata->>'file_id' like '%[파일ID]%';\n    group by metadata->>'file_id';\n    ```\n\n5) 문서 메타정보 저장\n   - Google Storage의 Object 정보를 메타정보 테이블에 저장합니다.\n   ```sql\n   insert into document_medadata\n   values ('[GS Object ID]', '[GS Object Name]', '[GS Object mediaLink]');\n   ```\n\n   - 기존 데이터를 삭제합니다.\n   ```sql\n   delete from document_records\n   where metadata->>'file_id' like '%[파일ID]%';\n   ```\n\n6) 문서 삭제\n   - 5)번 작업 동일하게 진행\n   - 문서 메타정보 삭제\n    ```sql\n    delete from document_medadata\n    where id = '[파일ID]';\n    ```\n   - desktop commander (gsutil) 을 이용해서 파일 Object 삭제\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -576,
+        -912
+      ],
+      "id": "e0da286d-7088-45fa-9184-fc8511726a61",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -640
+      ],
+      "id": "c60b01be-f442-40b8-94a9-5ffcaa6f6484",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "cCMPZGsBGfoRtzaW",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -496,
+        -640
+      ],
+      "id": "e6d3d49f-0fcf-4491-af68-af30b8d647d7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "# MCP 서버",
+        "height": 688,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        -384
+      ],
+      "typeVersion": 1,
+      "id": "25bea3be-0abe-49ab-8d4a-489192c09bca",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# RAG 생성기",
+        "height": 592,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        -1024
+      ],
+      "typeVersion": 1,
+      "id": "1b63cddd-9854-460b-bc88-12fe92090fa2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "description": "구글스토리지의 특정 버킷에 웹링크 파일을 업로드하는 도구",
+        "workflowId": {
+          "__rl": true,
+          "value": "oN1bXctlVmn0PTyK",
+          "mode": "list",
+          "cachedResultName": "Upload to GCS"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('url', ``, 'string') }}",
+            "bucketName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('bucketName', ``, 'string') }}",
+            "objectName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('objectName', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "bucketName",
+              "displayName": "bucketName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "objectName",
+              "displayName": "objectName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        -64
+      ],
+      "id": "7421d0ad-85ad-4cb2-8905-8a2135f87896",
+      "name": "Upload to GCS"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.files }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "ae3aec14-7d55-429e-afce-be6a938e953b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "onlyText"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fd633021-a9de-4d82-a466-dc430605eeda",
+                    "leftValue": "={{ $json.files }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "withFile"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1024,
+        -896
+      ],
+      "id": "1734d154-6989-4747-b8ce-5377ee3331b6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "create",
+        "bucketName": "dante-docs",
+        "objectName": "={{ $json.files[0].fileName }}",
+        "createBinaryPropertyName": "data0",
+        "createData": {},
+        "createQuery": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        -816
+      ],
+      "id": "3e735471-2ce4-478c-997e-b11b21394b05",
+      "name": "Create an object",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "application/pdf, text/*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1216,
+        -896
+      ],
+      "id": "b874d8d8-c9be-4c8c-89e6-dfb0d23dd26f",
+      "name": "Chat",
+      "webhookId": "7e20a2f1-becd-4423-9c49-adebdd75f708"
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "delete",
+        "bucketName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Bucket_Name', ``, 'string') }}",
+        "objectName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Object_Name', ``, 'string') }}",
+        "getParameters": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorageTool",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -80
+      ],
+      "id": "aa491482-2ced-4fc2-bf1d-c68c1afed624",
+      "name": "Delete an object from GCS",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "bucketName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Bucket_Name', ``, 'string') }}",
+        "maxResults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "listFilters": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorageTool",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -80
+      ],
+      "id": "c7b35968-9f57-42b9-9a8e-1da50437eb37",
+      "name": "List objects in GCS",
+      "credentials": {
+        "googleCloudStorageOAuth2Api": {
+          "id": "XrKr15NRap1rvC9X",
+          "name": "Google Cloud Storage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "gcs"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -304
+      ],
+      "id": "50e3f8d3-8497-41ef-b65a-591cec0cefd3",
+      "name": "MCP Server Trigger1",
+      "webhookId": "49ac4b91-ddb4-40da-8196-305df7c1cf41",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "57arTddOqzDegtgV",
+          "name": "My Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.dantelabs.pro/mcp/gcs",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -640
+      ],
+      "id": "797e86b1-29c5-46ed-a161-8698b90a2e0a",
+      "name": "GCS Tools",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "57arTddOqzDegtgV",
+          "name": "My Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.dantelabs.pro/mcp/rag",
+        "serverTransport": "httpStreamable",
+        "authentication": "bearerAuth",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        -640
+      ],
+      "id": "a943b39d-d729-4b93-b8f4-931c768353ac",
+      "name": "RAG Tools",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "57arTddOqzDegtgV",
+          "name": "My Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Agentic RAG 관리자 (written by [DanteLabs](https://youtube.com/@dante-labs))",
+        "height": 80,
+        "width": 1856,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        -1168
+      ],
+      "typeVersion": 1,
+      "id": "6043338b-8e98-4c70-888b-9289fb886092",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {
+    "Parameter": [
+      {
+        "json": {
+          "bucketName": "dante-docs",
+          "objectName": "i-and-l-03-4178509-ko.pdf",
+          "docsMetadataTableName": "document_metadata",
+          "docRecordsTableName": "document_pg"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute a SQL query": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parameter": {
+      "main": [
+        [
+          {
+            "node": "Get metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get object": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Document",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Document",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Document": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF": {
+      "main": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Document": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve Records",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Retrieve Records",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Records": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get metadata": {
+      "main": [
+        [
+          {
+            "node": "Get object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to GCS": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an object": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an object from GCS": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List objects in GCS": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GCS Tools": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Tools": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c694b5f5-899d-4690-a9eb-9411ff1895f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8e91b154e6724206430c850990ab6b209c9a6fc90227920f9309035230a4a120"
+  },
+  "id": "pahZdH02fLoIz3Vg",
+  "tags": []
+}
