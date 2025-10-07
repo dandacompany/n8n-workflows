@@ -495,6 +495,22 @@
           "name": "KIE.ai Bearer Auth account"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## 카톡봇 - SeeDance Image to Video 워크플로\n- 제작 : [단테랩스 유튜브 채널](https://youtube.com/@dante-labs)  (☕️ [커피 한 잔 후원](https://buymeacoffee.com/dante.labs))\n\n✨ 워크플로 전체 의도:  \n카카오톡에서 사용자가 입력한 '이미지 URL + 명령어'를 받아,  \n1. 이미지를 임시 업로드(imgbb/드라이브 등) →  \n2. SeeDance(KIE.ai) API 통해 고품질 동영상 자동 생성 →  \n3. 생성된 동영상 파일을 구글 드라이브에 저장 →  \n4. 공유 가능한 링크(webViewLink)를 JSON으로 카톡봇에 반환하는 자동화 시스템!\n\n- 핵심 처리 Flow:\n  1. **Webhook 트리거**\n     - 카톡봇에서 POST 메시지 수신(Header 인증)\n  2. **정보 추출(Information Extractor)**\n     - 입력 메시지에서 이미지 URL, 요청 메시지, 타이틀 등 주요 정보 파싱\n  3. **이미지 소스 분기(Switch) 및 임시 처리**\n     - 드라이브 파일 vs 일반 이미지 자동 구분  \n       - 드라이브 파일: 다운로드→base64 인코딩→임시 업로드(imgbb, 만료 10분)  \n       - 일반 이미지: URL 그대로/임시 업로드(imgbb, 만료 10분)\n  4. **이미지→동영상 변환 요청(SeeDance API)**\n     - SeeDance(KIE.ai) API에 이미지→동영상 변환 job 등록 (프롬프트/해상도/옵션 포함)\n  5. **Job 상태 체크 및 결과 조회**\n     - job 생성 후 상태 체크, 동영상 URL 발급  \n       - 실패 시 wait(재시도)\n  6. **동영상 파일 다운로드→Drive 업로드**\n     - 생성된 동영상 URL 파일 다운로드 후, 생성미디어 폴더에 구글 드라이브 업로드\n  7. **Webhook 응답 반환**\n     - 구글 드라이브 webViewLink를 JSON 형식으로 카톡봇에 실시간 전송(200 OK)\n\n- 포인트/특징  \n  - **이미지 소스 자동 판별/임시 업로드 처리** (카톡, 구글드라이브, 외부 URL 모두 대응)\n  - **임시 URL 사용(만료 10분)으로 보안/효율성↑**\n  - **이미지→동영상 자동 생성 후 자동 저장/공유**\n  - **API 기반 연동(카카오→구글드라이브→KIE.ai→imgbb)**\n  - **입력→처리→생성→공유까지 전체 자동화 워크플로 완비**\n",
+        "height": 832,
+        "width": 768,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -720
+      ],
+      "id": "bb076652-5413-4877-b946-95a6d0f2fd0a",
+      "name": "Sticky Note2"
     }
   ],
   "pinData": {},
@@ -688,7 +704,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "7fd3e60c-21c7-48b5-beb1-eca8fd1ca93e",
+  "versionId": "b8fefd3e-2390-4b0f-aeb6-a6a04847299d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"

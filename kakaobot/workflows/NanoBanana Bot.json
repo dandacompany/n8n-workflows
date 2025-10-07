@@ -675,6 +675,22 @@
           "name": "KIE.ai Bearer Auth account"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## 카톡봇 - NanoBanana 워크플로\n- 제작 : [단테랩스 유튜브 채널](https://youtube.com/@dante-labs)  (☕️ [커피 한 잔 후원](https://buymeacoffee.com/dante.labs))\n\n✨ 워크플로 전체 의도:  \n카톡에서 받은 이미지, 파일, 메시지 수정 요청을 받아 이미지 편집 AI(NanoBanana)와 임시 이미지 저장, 프리뷰, AI 텍스트 가공·기록 관리까지 자동화하는 카톡봇 워크플로!  \n(실시간 프리뷰/응답+DB 관리/임시링크 관리 등 고급 자동화)\n\n---\n\n- **핵심 처리 Flow:**  \n  1. **Webhook 트리거**  \n     - 카톡봇에서 메시지/이미지/명령어 POST로 수신 (Header 인증 필요)\n  2. **정보 추출(Information Extractor)**  \n     - LangChain 기반 AI로, 요청 텍스트에서 이미지 URL·수정명령·타이틀·타임스탬프 등 핵심 정보 구조화 파싱\n  3. **임시 이미지 URL 관리(DataTable)**  \n     - 이미지 URL array → 각 항목 DB에 임시 저장 후, 전체 이미지 목록 취합(Split/Summarize)\n  4. **NanoBanana API 이미지 편집**  \n     - 요청메시지+원본 이미지 URL’을 AI 편집 API(kie.ai)로 전달, 편집 작업 생성\n  5. **작업 상태 체크+결과 이미지 수집**  \n     - AI 편집 결과 polling(GET)로 상태확인/이미지 결과 URL 획득\n  6. **임시 이미지 크린업**  \n     - 작업 성공 시 임시DB에서 해당 row 삭제\n  7. **임시 이미지 업로드/공유 링크 생성**  \n     - Google Drive 파일, 혹은 일반 이미지면 imgbb API로 10분 유효 임시URL 생성\n  8. **미리보기/OG 태그 페이지 제공**  \n     - /preview-image 웹훅에서 결과이미지+meta(og:image 등) 템플릿 자동 반환 → 카톡/오픈챗 미리보기 지원\n  9. **최종 응답 반환**  \n     - 카톡봇/클라이언트에 결과(이미지/프리뷰용 링크 등) JSON 또는 HTML로 응답\n\n---\n\n- **포인트/특징**\n  - 이미지 편집 AI(NanoBanana) 최신 API 연동 (kie.ai, Replicate.com 등)\n  - 다양한 이미지 소스 지원 (일반 URL / 구글드라이브 파일 / 다중 이미지)\n  - LangChain 기반 정보 추출 – 프롬프트 기반 파싱\n  - 미리보기/OG 태그 페이지 자동화 (카톡/오픈채팅 등에서 썸네일 즉시 확인 가능)\n  - 임시 이미지 URL/메타 데이터 DB 관리로, 후처리 및 강력한 레코드 관리\n  - 토큰 만료/오류 예외 처리 Flow, 대기(wait)/polling/크린업\n  - 모든 처리 결과를 실시간 웹훅(200OK)로 반환, 외부 서비스 연동 쉬움\n\n",
+        "height": 896,
+        "width": 1232,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        256,
+        -800
+      ],
+      "id": "0cc62a45-3415-4f07-b6d0-4d2528e5f777",
+      "name": "Sticky Note3"
     }
   ],
   "pinData": {},
@@ -921,7 +937,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "54f7444f-c7d3-421f-9b1e-3fadbe6a3e8e",
+  "versionId": "6613b148-66c0-4cfc-914f-a53960e57a61",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"

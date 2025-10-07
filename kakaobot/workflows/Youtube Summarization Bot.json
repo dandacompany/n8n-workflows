@@ -368,6 +368,52 @@
       ],
       "id": "f4e73dd3-db06-4c20-a3a8-3bc2f7d3f9ec",
       "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "## 카톡봇 - Youtube Summarization Bot 워크플로\n- 제작 : [단테랩스 유튜브 채널](https://youtube.com/@dante-labs)  (☕️ [커피 한 잔 후원](https://buymeacoffee.com/dante.labs))\n\n✨ 워크플로 전체 의도:  \n카카오톡에서 유튜브 영상 링크/ID를 받아,  \n1. 영상 세부 데이터 및 자막을 수집 →  \n2. 강력한 LLM을 통해 교육용 구조 요약을 생성 →  \n3. 기존 DB(데이터테이블)에 캐싱/저장 →  \n4. 요약문을 카카오톡에 실시간 반환하는 자동화!\n\n- 핵심 처리 Flow:\n  1. **Webhook 트리거**\n     - 카톡봇이 유저의 Youtube 영상 ID와 함께 POST 요청 (Headers 인증)\n  2. **캐시 확인(DataTable 조회)**\n     - 입력된 videoID로 이미 요약된 데이터가 있는지 DB에서 조회\n     - 있으면 바로 결과 반환, 없으면 신규 분석 진행\n  3. **Youtube 영상/자막 데이터 수집**\n     - Youtube API로 영상 제목, 설명 등 메타데이터 조회\n     - Apify 플러그인으로 영상 자막 데이터 크롤링\n  4. **데이터 병합(Merge)**\n     - 영상 메타데이터와 자막, 기타 정보 SQL 조인 방식으로 병합\n  5. **LLM 요약 요청/문장 구조화**\n     - 고급 프롬프트(교육용 구조 요약 template)로 LLM(Google Gemini/ChatOpenAI) 호출\n     - 논리적 구조, 구간별 요약, 인사이트 생성\n  6. **요약/구조화 결과 처리(Output Parser)**\n     - Markdown 기반 학습형 요약문으로 변환(구간별, 숫자, 질문 포함)\n  7. **DB(데이터테이블)에 결과 저장**\n     - videoID+summary를 데이터베이스에 insert (중복 요청 방지, 캐시 역할)\n  8. **Webhook 응답 반환**\n     - 카카오톡에 전체 요약 및 링크 포함 JSON 형태로 반환 (200 OK)\n\n- 포인트/특징  \n  - **Youtube 영상의 자막까지 자동 수집/통합(자막크롤링+API 혼합)**\n  - **한번 요약된 영상 재요청 시 빠른 캐시 반환(중복비용↓)**\n  - **교육자·학생에 특화된 논리적/구조적 요약 생성(프롬프트 최적화)**\n  - **자주쓰는 DB 캐싱/요약구조 템플릿의 실전 적용 예시**\n  - **YOUTUBE 링크/타임스탬프 등 실용적 출력**\n  - **모든 과정 자동화: 입력→크롤링→분석→저장→결과반환까지 원스톱**\n",
+        "height": 896,
+        "width": 832,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -1264
+      ],
+      "id": "a26da26f-9459-42f3-925d-dce88015c4fb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 영상 정보 조회",
+        "height": 560,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -304
+      ],
+      "id": "083bed86-ca8f-4a07-a6a1-2ee8129b132d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 영상 요약",
+        "height": 560,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        -304
+      ],
+      "id": "08137bee-e10a-474b-b1f4-ea7ee05a25cc",
+      "name": "Sticky Note2"
     }
   ],
   "pinData": {},
@@ -515,7 +561,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c7e9a95f-77a1-4aec-bbc1-174086a914ce",
+  "versionId": "d6c414db-5a68-4dc4-8e82-c3d6a83aa8f6",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
