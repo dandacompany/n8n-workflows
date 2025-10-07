@@ -5,7 +5,7 @@
       "parameters": {
         "enableResponseOutput": true,
         "respondWith": "json",
-        "responseBody": "={\n  \"page\": \"https://n8n.dante-datalab.com/webhook/preview-image?src={{ $json.imageUrl }}&title={{ $('Information Extractor').item.json.output.title }}_{{ $('Information Extractor').item.json.output.timestamp }}\",\n  \"image\" : \"{{ $json.imageUrl }}\"\n}",
+        "responseBody": "={\n  \"page\": \"https://n8n.example.com/webhook/preview-image?src={{ $json.imageUrl }}&title={{ $('Information Extractor').item.json.output.title }}_{{ $('Information Extractor').item.json.output.timestamp }}\",\n  \"image\" : \"{{ $json.imageUrl }}\"\n}",
         "options": {
           "responseCode": 200
         }
