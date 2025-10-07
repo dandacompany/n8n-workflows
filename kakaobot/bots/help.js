@@ -31,7 +31,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         helpMessage += "📺 유튜브 요약\n";
         helpMessage += "• 유튜브 링크 전송\n";
         helpMessage += "  → 자동으로 영상 내용 요약\n";
-        helpMessage += "  예시: https://youtu.be/xxxxx\n\n";
         
         helpMessage += "━━━━━━━━━━━━━━━━━━━━━━\n\n";
         helpMessage += "❓ 도움이 필요하시면\n";
