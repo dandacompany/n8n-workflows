@@ -20,8 +20,8 @@ function extractYouTubeVideoID(url) {
 }
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
-    var url = "https://n8n.dante-datalab.com/webhook/summarize-yt";
-    var token = "C8yic4maVrBqqk941KKct";
+    var url = "https://n8n.example.com/webhook/summarize-yt";
+    var token = "xxxxxxxxxxxxxxxx";
 
     // 메시지 내 모든 유튜브 링크 추출
     var links = findYouTubeLinks(msg);

@@ -1,7 +1,7 @@
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
      // 요청을 보낼 URL과 인증 토큰 설정
-     var url = "https://n8n.dante-datalab.com/webhook/sora";
-     var token = "C8yic4maVrBqqk941KKct";
+     var url = "https://n8n.example.com/webhook/sora";
+     var token = "xxxxxxxxxxxxxxxx";
  
      // "/gemini"로 시작하지 않으면 함수 종료
      if(!msg.startsWith("/gem")) {    
