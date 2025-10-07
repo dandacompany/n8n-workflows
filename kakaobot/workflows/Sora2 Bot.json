@@ -1,0 +1,711 @@
+{
+  "name": "카톡봇 API - Sora2 Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "enableResponseOutput": true,
+        "respondWith": "json",
+        "responseBody": "={\n  \"video\" : \"{{ $json.webViewLink }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2976,
+        272
+      ],
+      "id": "832735a5-3649-4484-a804-8b48b1b5ffc7",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sora",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        288
+      ],
+      "id": "38255966-6ed5-4d9a-a192-375c3a41c2b4",
+      "name": "Webhook",
+      "webhookId": "62d0ea8c-30db-41c8-b3fa-775856a8d215",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6F4mRvr7PitbK2EF",
+          "name": "My Test Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "google/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "google/gemini-2.5-flash-lite"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        512
+      ],
+      "id": "88dda2b5-e5c6-4b50-acde-d7a64d5faa5e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "kfHWoZ2KMTrQr52Z",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=- 요청내용 : {{ $json.body.text.replaceAll('/sora ', '') }}\n- 요청시간 : {{ $json.body.timestamp }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "imageUrl",
+              "description": "=수정 요청한 원본 URL (1개) \n(e.g. http://example.com/image1.jpg)",
+              "required": true
+            },
+            {
+              "name": "requestMessage",
+              "description": "수정 요청 메세지 내용 (영어로 번역)",
+              "required": true
+            },
+            {
+              "name": "title",
+              "description": "요청 제목 (10자 미만)",
+              "required": true
+            },
+            {
+              "name": "timestamp",
+              "type": "number",
+              "description": "=yyyyMMddHHmmss 로 포매팅된 날짜값"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.\n\n원본 url을 수정하지 말고 그대로 파싱할것."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        288
+      ],
+      "id": "5c2eb560-c33e-4500-98a5-ace033fd63c3",
+      "name": "Information Extractor",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a5495311-4aaf-40d9-82ac-eda421394a41",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2032,
+        272
+      ],
+      "id": "69a94d44-cdf9-4056-9de3-99f6b9226b1a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2272,
+        448
+      ],
+      "id": "6c23cce0-69f5-4949-8720-7dfa492a99d1",
+      "name": "Wait",
+      "webhookId": "87426b0d-52ee-4d09-bf7f-7e7ab8ca64e3"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.output.imageUrl.trim() }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        592,
+        272
+      ],
+      "id": "5f0807b8-878d-49c7-9879-59bbd464c1c0",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "N8Rf0BdY5jAfIdzv",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        848,
+        272
+      ],
+      "id": "78f946c1-43c4-4888-a978-c3ea7f86f17c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiration",
+              "value": "600"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1088,
+        272
+      ],
+      "id": "983c6602-1b49-4aba-b7de-fbda5b9b93d3",
+      "name": "imgbb",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "j9sXQdyYiQEHCGYF",
+          "name": "Upstage Bearer Auth"
+        },
+        "httpQueryAuth": {
+          "id": "8Q9xrE5kEBJlO0pI",
+          "name": "imgbb.com Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.imageUrl.trim() }}",
+                    "rightValue": "https://drive.google.com/file/d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "cd2ce76d-de6e-4fd2-89ae-48f09e33044c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "googleDriveFile"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e61ea1d-6444-4fa3-af94-4ca353693598",
+                    "leftValue": "={{ $json.output.imageUrl.trim() }}",
+                    "rightValue": "https?:\\/\\/\\S+\\.(?:jpe?g|JPE?G|png|PNG|gif|GIF|bmp|BMP|webp|WEBP|svg|SVG|avif|AVIF|heic|HEIC|heif|HEIF)(?:\\?\\S*)?",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "regularImageFile"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        304,
+        288
+      ],
+      "id": "fe208fb8-adbc-46f7-adb9-0754ef466a8e",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-image-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $('Information Extractor').item.json.output.requestMessage }}\",\n    \"image_urls\": [\n      \"{{ $json.url }}\"\n    ],\n    \"aspect_ratio\": \"landscape\",\n    \"quality\": \"standard\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1552,
+        272
+      ],
+      "id": "10fc6dcc-b2de-49af-8197-11b7e37dbf19",
+      "name": "Sora2 API",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "m2XXwdKQS7a0ot9k",
+          "name": "KIE.ai Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1808,
+        272
+      ],
+      "id": "4c0f998e-5999-4c10-abfc-266edf351bc7",
+      "name": "Check Status",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "m2XXwdKQS7a0ot9k",
+          "name": "KIE.ai Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfdf2802-f15c-4bde-b108-ed7e15df8c83",
+              "name": "videoUrl",
+              "value": "={{ JSON.parse($json.data.resultJson).resultUrls.first() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2272,
+        272
+      ],
+      "id": "010c4331-3960-40f0-9dbc-023160000116",
+      "name": "Set Video Url"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "707c9dc1-0796-4f03-8df4-921067782390",
+              "name": "url",
+              "value": "={{ $json.data?.url ?? $json.output.imageUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        272
+      ],
+      "id": "f399bc02-0a8e-457f-80a3-794593c27959",
+      "name": "Set Image Url"
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1cvAj8uaTB-KlpVLzMl7QWzHqWjPNKGog",
+          "mode": "list",
+          "cachedResultName": "생성미디어",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1cvAj8uaTB-KlpVLzMl7QWzHqWjPNKGog"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2720,
+        272
+      ],
+      "id": "6a38cc39-8459-4a17-9f2d-4916cf940d33",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "N8Rf0BdY5jAfIdzv",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.videoUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2480,
+        272
+      ],
+      "id": "cf7dc56e-6e49-43aa-b9e2-59558897edaf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "# 동영상 생성",
+        "height": 528,
+        "width": 1760
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1472,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "c942ba9c-fc09-4c77-8514-a566aa377747",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# 전처리",
+        "height": 528,
+        "width": 1760
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "0c1050d9-209a-45cd-bcf1-046b0264e3ec",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Set Video Url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "imgbb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imgbb": {
+      "main": [
+        [
+          {
+            "node": "Set Image Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Image Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sora2 API": {
+      "main": [
+        [
+          {
+            "node": "Check Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Video Url": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Image Url": {
+      "main": [
+        [
+          {
+            "node": "Sora2 API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a7dfe860-7343-47b9-aa04-5d9b4d5b65a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
+  },
+  "id": "FfrT003IUbKPsNb9",
+  "tags": [
+    {
+      "createdAt": "2025-07-10T00:10:46.297Z",
+      "updatedAt": "2025-07-10T00:10:46.297Z",
+      "id": "VrlK5XGt9IlGUzRO",
+      "name": "video"
+    },
+    {
+      "createdAt": "2025-10-06T15:13:55.082Z",
+      "updatedAt": "2025-10-06T15:13:55.082Z",
+      "id": "AObQ5ryFlUdd8a8l",
+      "name": "kakao"
+    }
+  ]
+}

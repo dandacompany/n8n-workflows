@@ -1,0 +1,2124 @@
+{
+  "name": "Search Aladin Books MCP",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        -96
+      ],
+      "id": "b1398230-078d-47e6-b8c6-4a19a3df0939",
+      "name": "When chat message received",
+      "webhookId": "ef0bd92c-9a3d-4942-9976-fe4fdd0cd807"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# 페르소나 / 목표\n당신은 도서 정보를 검색해서 상세하게 정리해서 알려주는 도우미 입니다.\n사용자가 요청하는 내용에 따라서, 아래 도구를 사용해서 정보를 검색한 후 정리해서 친절하게 보고하세요.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -96
+      ],
+      "id": "c29c9c1e-363c-4ad3-bd68-c5d4fd56581d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        128
+      ],
+      "id": "ffd8b17e-2ba0-4e78-a9ce-de26a5c6c6a5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        128
+      ],
+      "id": "c150bae0-0d8f-48e8-919e-cb71a967dda0",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jwN5zWrZaLyMpr2N",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://www.aladin.co.kr/ttb/api/ItemSearch.aspx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "Query",
+              "value": "={{ $json.Query }}"
+            },
+            {
+              "name": "MaxResults",
+              "value": "={{ $json.MaxResults }}"
+            },
+            {
+              "name": "Start",
+              "value": "={{ $json.Start }}"
+            },
+            {
+              "name": "SearchTarget",
+              "value": "Book"
+            },
+            {
+              "name": "Version",
+              "value": "20131101"
+            },
+            {
+              "name": "OptResult",
+              "value": "ebookList,usedList,reviewList "
+            },
+            {
+              "name": "Sort",
+              "value": "={{ $json.Sort }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        320
+      ],
+      "id": "224e3fb5-3e30-4f0d-b18a-b7559874f07c",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "0Q8M2ObS70e6DDpC",
+          "name": "Aladin Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        192,
+        320
+      ],
+      "id": "a12aa5fc-f305-4d63-891a-3e7999c342a9",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "url": "http://www.aladin.co.kr/ttb/api/ItemList.aspx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "QueryType",
+              "value": "={{ $json.QueryType }}"
+            },
+            {
+              "name": "SearchTarget",
+              "value": "Book"
+            },
+            {
+              "name": "Start",
+              "value": "={{ $json.Start }}"
+            },
+            {
+              "name": "MaxResults",
+              "value": "={{ $json.MaxResults }}"
+            },
+            {
+              "name": "CategoryId",
+              "value": "={{ $json.CategoryId }}"
+            },
+            {
+              "name": "Version",
+              "value": "20131101"
+            },
+            {
+              "name": "OptResult",
+              "value": "ebookList,usedList,reviewList"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        512
+      ],
+      "id": "e7efd20b-40e4-4f95-9c01-4df0057b57bb",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "0Q8M2ObS70e6DDpC",
+          "name": "Aladin Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        192,
+        512
+      ],
+      "id": "fc3dcd19-343e-4c68-8c30-4599f673bf37",
+      "name": "XML1"
+    },
+    {
+      "parameters": {
+        "url": "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ItemId",
+              "value": "={{ $json.ISBN }}"
+            },
+            {
+              "name": "ItemIdType",
+              "value": "ISBN"
+            },
+            {
+              "name": "Version",
+              "value": "20131101"
+            },
+            {
+              "name": "OptResult",
+              "value": "ebookList,usedList,reviewList,ratingInfo,bestSellerRank"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        896
+      ],
+      "id": "a52fee7f-0af5-4392-85dc-d2f861bec0c7",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "0Q8M2ObS70e6DDpC",
+          "name": "Aladin Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        192,
+        896
+      ],
+      "id": "40c917f8-73dc-4c28-a91f-7d5c17f79819",
+      "name": "XML2"
+    },
+    {
+      "parameters": {
+        "url": "http://www.aladin.co.kr/ttb/api/ItemOffStoreList.aspx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ItemId",
+              "value": "={{ $json.ISBN }}"
+            },
+            {
+              "name": "ItemIdType",
+              "value": "ISBN"
+            },
+            {
+              "name": "Version",
+              "value": "20131101"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        1088
+      ],
+      "id": "a661395e-7416-4f2e-b70b-e5e4ba18c909",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "0Q8M2ObS70e6DDpC",
+          "name": "Aladin Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1088
+      ],
+      "id": "1b506a5e-efca-4827-9358-c769e9906d47",
+      "name": "XML3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "ItemSearch",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1682953e-e989-4164-aa7c-fbcce7fbe8a6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ItemSearch"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "74c36a07-005d-4459-be8b-40eb12a10097",
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "ItemList",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ItemList"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c389af84-6e6a-449f-ade4-aa8374584366",
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "usedItemList",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "usedItemList"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "efbfd7a7-5a22-44f2-b6e5-0e7d25ffe27a",
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "ItemLookUp",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ItemLookUp"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2aa99a45-e6f6-45d8-b17d-454508f33f7e",
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "ItemOffStoreList",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ItemOffStoreList"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d194ed7c-07fc-42fa-8d4e-56e9f4ea5932",
+                    "leftValue": "={{ $json.apiType }}",
+                    "rightValue": "ItemReviewList",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -256,
+        816
+      ],
+      "id": "3cd4aa1c-c882-4614-9a84-894f10e41a30",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "errorMessage": "apiType은 ItemSearch, ItemList, ItemLookUp, ItemOffStoreList만 지원합니다."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        1568
+      ],
+      "id": "26aa0f85-e2cd-478a-b1e9-6c85cac15c6c",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "apiType"
+            },
+            {
+              "name": "Query"
+            },
+            {
+              "name": "QueryType"
+            },
+            {
+              "name": "ISBN"
+            },
+            {
+              "name": "CategoryId"
+            },
+            {
+              "name": "Start"
+            },
+            {
+              "name": "MaxResults"
+            },
+            {
+              "name": "Sort"
+            },
+            {
+              "name": "ItemId"
+            },
+            {
+              "name": "PageNumber",
+              "type": "number"
+            },
+            {
+              "name": "PageCount",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        896
+      ],
+      "id": "07cc0c90-aa7b-4b7a-93ed-28ae8e7d2256",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "http://www.aladin.co.kr/ttb/api/ItemList.aspx",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "QueryType",
+              "value": "={{ $json.QueryType }}"
+            },
+            {
+              "name": "SearchTarget",
+              "value": "Used"
+            },
+            {
+              "name": "SubSearchTarget",
+              "value": "Book"
+            },
+            {
+              "name": "Version",
+              "value": "20131101"
+            },
+            {
+              "name": "=Start",
+              "value": "={{ $json.Start }}"
+            },
+            {
+              "name": "MaxResults",
+              "value": "={{ $json.MaxResults }}"
+            },
+            {
+              "name": "OptResult",
+              "value": "ebookList,usedList,reviewList"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        704
+      ],
+      "id": "c451eb19-5ef9-4728-becc-3ba6ebb00cbb",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "0Q8M2ObS70e6DDpC",
+          "name": "Aladin Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        192,
+        704
+      ],
+      "id": "1e5bc730-bf8e-4756-a988-eaed4bc78db6",
+      "name": "XML4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ca50c73e-9287-4248-8d7c-c3afc8ea6654",
+              "name": "items",
+              "value": "={{ $json.object.item }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        608
+      ],
+      "id": "8a020308-e341-4acc-b835-c6eed29f6a20",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f0ee1422-1394-4b8f-8c42-12e7b7ab3b4b",
+              "name": "itemOffStoreList",
+              "value": "={{ $json.object.itemOffStoreList }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        1088
+      ],
+      "id": "ff76b7d0-fefe-46fb-8dfb-f078fc90865a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "path": "acd0154c-7bba-4b10-b61c-e6768c5592c7"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        96
+      ],
+      "id": "0a198f8d-127e-447a-b5af-e546a4d7647a",
+      "name": "MCP Server Trigger",
+      "webhookId": "acd0154c-7bba-4b10-b61c-e6768c5592c7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f0ee1422-1394-4b8f-8c42-12e7b7ab3b4b",
+              "name": "itemOffStoreList",
+              "value": "={{ $json.object.item }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        896
+      ],
+      "id": "00b0db50-6418-496d-8227-41c6ac620b5b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "description": "ItemId에 해당하는 도서의 사용자 리뷰정보를 가져오는 도구 \n사용자들의 코멘트와 평점(5점만점) 정보를 조회할수 있으며, PageNumber와 PageCount를 이용해서 페이징되어 있는 리뷰를 조회한다.",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "apiType": "ItemReviewList",
+            "ItemId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ItemId', `숫자로 이루어진 도서 고유 번호 ( e.g. : 371790158 )`, 'string') }}",
+            "PageNumber": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('PageNumber', `페이지 번호 (기본값 : 1)`, 'number') }}",
+            "PageCount": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('PageCount', `페이지별 리뷰 수 (기본값 : 20)`, 'number') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        128
+      ],
+      "id": "9ebcd8cf-9a8c-422d-b155-8bcf8be6239f",
+      "name": "Get Review"
+    },
+    {
+      "parameters": {
+        "description": "키워드로 도서를 검색합니다.",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "apiType": "ItemSearch",
+            "Query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+            "Start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `1이상, 양의 정수(기본값:1), 검색결과 시작페이지`, 'string') }}",
+            "MaxResults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('MaxResults', `1이상 100이하, 양의 정수(기본값:10), 검색결과 한 페이지당 최대 출력 개수`, 'string') }}",
+            "Sort": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sort', `Accuracy(기본값): 관련도\nPublishTime : 출간일\nTitle : 제목\nSalesPoint : 판매량\nCustomerRating 고객평점\nMyReviewCount :마이리뷰갯수\n`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        128
+      ],
+      "id": "8c9c779a-307f-4a71-9af5-c6b3ad264a21",
+      "name": "ItemSearch"
+    },
+    {
+      "parameters": {
+        "description": "=(신간, 베스트셀러, 편집자추천, 주목할만한 신간, 블로거 베스트셀러) 도서 리스트 조회",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `1이상, 양의 정수(기본값:1), 검색결과 시작페이지`, 'string') }}",
+            "MaxResults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('MaxResults', `1이상 100이하, 양의 정수(기본값:10), 검색결과 한 페이지당 최대 출력 개수`, 'string') }}",
+            "apiType": "ItemList",
+            "QueryType": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('QueryType', `ItemNewAll : 신간 전체 리스트\nItemNewSpecial : 주목할 만한 신간 리스트\nItemEditorChoice : 편집자 추천 리스트 (카테고리로만 조회 가능)\nBestseller : 베스트셀러\nBlogBest : 블로거 베스트셀러 (국내도서만 조회 가능)`, 'string') }}",
+            "CategoryId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('CategoryId', `1230\t가정/요리/뷰티\n55890\t건강/취미/레저\n170\t경제경영\n76001\t고등학교참고서\n2105\t고전\n987\t과학\n4395\t달력/기타\n8257\t대학교재/전문서적\n2551\t만화\n798\t사회과학\n1\t소설/시/희곡\n1383\t수험서/자격증\n1108\t어린이\n55889\t에세이\n1196\t여행\n74\t역사\n517\t예술/대중문화\n1322\t외국어\n13789\t유아\n656\t인문학\n336\t자기계발\n2913\t잡지\n112011\t장르소설\n17195\t전집/중고전집\n1237\t종교/역학\n2030\t좋은부모\n76000\t중학교참고서\n1137\t청소년\n50246\t초등학교참고서\n351\t컴퓨터/모바일\n90831\t가정/원예/인테리어\n90832\t가족/관계\n90833\t건강/스포츠\n90834\t건축/디자인\n127098\t게임/토이\n90835\t경제경영\n90836\t공예/취미/수집\n90837\t교육/자료\n90838\t기술공학\n25992\t기타\n28253\t기타 언어권 도서\n90839\t달력/다이어리/연감\n136215\t대만도서\n30177\t대학교재\n145394\t독일 도서\n90840\t만화\n90841\t법률\n90842\t소설/시/희곡\n90843\t수험서\n28254\t스페인 도서\n106165\t어린이\n90844\t언어학\n90845\t에세이\n90846\t여행\n90847\t역사\n90848\t예술/대중문화\n90849\t오디오북\n90850\t요리\n90851\t유머\n90852\t의학\n90853\t인문/사회\n127183\t인문/사회\n28261\t일본 도서\n90854\t자기계발\n90855\t자연과학\n90856\t전기/자서전\n90857\t종교/명상/점술\n28492\t중국 도서\n90858\t청소년\n90859\t컴퓨터\n90860\t한국관련도서\n25557\t해외잡지\n90861\tELT/어학/사전`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        128
+      ],
+      "id": "15ac3f64-3806-46bb-865e-305adb5581f8",
+      "name": "ItemList"
+    },
+    {
+      "parameters": {
+        "description": "=중고 도서 리스트 조회",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', `1이상, 양의 정수(기본값:1), 검색결과 시작페이지`, 'string') }}",
+            "MaxResults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('MaxResults', `1이상 100이하, 양의 정수(기본값:10), 검색결과 한 페이지당 최대 출력 개수`, 'string') }}",
+            "apiType": "usedItemList",
+            "QueryType": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('QueryType', `ItemNewAll : 신간 전체 리스트\nItemNewSpecial : 주목할 만한 신간 리스트\nItemEditorChoice : 편집자 추천 리스트 (카테고리로만 조회 가능)\nBestseller : 베스트셀러\nBlogBest : 블로거 베스트셀러 (국내도서만 조회 가능)`, 'string') }}",
+            "CategoryId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('CategoryId', `1230\t가정/요리/뷰티\n55890\t건강/취미/레저\n170\t경제경영\n76001\t고등학교참고서\n2105\t고전\n987\t과학\n4395\t달력/기타\n8257\t대학교재/전문서적\n2551\t만화\n798\t사회과학\n1\t소설/시/희곡\n1383\t수험서/자격증\n1108\t어린이\n55889\t에세이\n1196\t여행\n74\t역사\n517\t예술/대중문화\n1322\t외국어\n13789\t유아\n656\t인문학\n336\t자기계발\n2913\t잡지\n112011\t장르소설\n17195\t전집/중고전집\n1237\t종교/역학\n2030\t좋은부모\n76000\t중학교참고서\n1137\t청소년\n50246\t초등학교참고서\n351\t컴퓨터/모바일\n90831\t가정/원예/인테리어\n90832\t가족/관계\n90833\t건강/스포츠\n90834\t건축/디자인\n127098\t게임/토이\n90835\t경제경영\n90836\t공예/취미/수집\n90837\t교육/자료\n90838\t기술공학\n25992\t기타\n28253\t기타 언어권 도서\n90839\t달력/다이어리/연감\n136215\t대만도서\n30177\t대학교재\n145394\t독일 도서\n90840\t만화\n90841\t법률\n90842\t소설/시/희곡\n90843\t수험서\n28254\t스페인 도서\n106165\t어린이\n90844\t언어학\n90845\t에세이\n90846\t여행\n90847\t역사\n90848\t예술/대중문화\n90849\t오디오북\n90850\t요리\n90851\t유머\n90852\t의학\n90853\t인문/사회\n127183\t인문/사회\n28261\t일본 도서\n90854\t자기계발\n90855\t자연과학\n90856\t전기/자서전\n90857\t종교/명상/점술\n28492\t중국 도서\n90858\t청소년\n90859\t컴퓨터\n90860\t한국관련도서\n25557\t해외잡지\n90861\tELT/어학/사전`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        128
+      ],
+      "id": "83180cc9-fa39-47b2-bde3-f008548974b6",
+      "name": "usedItemList"
+    },
+    {
+      "parameters": {
+        "description": "=도서 상세 정보 조회",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "apiType": "ItemLookUp",
+            "ISBN": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ISBN', `상품을 구분짓는 유일한 값 (ISBN)`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        128
+      ],
+      "id": "7bfba44e-4d8d-4390-9fa7-4ce686cbe3b9",
+      "name": "ItemLookUp"
+    },
+    {
+      "parameters": {
+        "description": "=중고도서 보유 매장 검색",
+        "workflowId": {
+          "__rl": true,
+          "value": "aW121kXFA7o2A3Hr",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/aW121kXFA7o2A3Hr",
+          "cachedResultName": "Search Aladin Books MCP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "apiType": "ItemLookUp",
+            "ISBN": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ISBN', `상품을 구분짓는 유일한 값 (ISBN)`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "apiType",
+              "displayName": "apiType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Query",
+              "displayName": "Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "QueryType",
+              "displayName": "QueryType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ISBN",
+              "displayName": "ISBN",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "CategoryId",
+              "displayName": "CategoryId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Start",
+              "displayName": "Start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "MaxResults",
+              "displayName": "MaxResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "Sort",
+              "displayName": "Sort",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "ItemId",
+              "displayName": "ItemId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "PageNumber",
+              "displayName": "PageNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "PageCount",
+              "displayName": "PageCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        128
+      ],
+      "id": "feb46bd3-4903-4fd0-96e3-41eeb49de174",
+      "name": "ItemOffStoreList"
+    },
+    {
+      "parameters": {
+        "url": "https://www.aladin.co.kr/ucl/shop/product/ajax/GetCommunityListAjax.aspx",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "itemId",
+              "value": "={{ $json.ItemId }}"
+            },
+            {
+              "name": "pageCount",
+              "value": "={{ $json.PageCount }}"
+            },
+            {
+              "name": "communitytype",
+              "value": "CommentReview"
+            },
+            {
+              "name": "nemoType",
+              "value": "-1"
+            },
+            {
+              "name": "page",
+              "value": "={{ $json.PageNumber }}"
+            },
+            {
+              "name": "sort",
+              "value": "2"
+            },
+            {
+              "name": "IsOrderer",
+              "value": "2"
+            },
+            {
+              "name": "BranchType",
+              "value": "1"
+            },
+            {
+              "name": "IsAjax",
+              "value": "false"
+            },
+            {
+              "name": "pageType",
+              "value": "0"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "ko,en-US;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=370615846"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-origin"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "X-Requested-With",
+              "value": "XMLHttpRequest"
+            },
+            {
+              "name": "sec-ch-ua",
+              "value": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\""
+            },
+            {
+              "name": "sec-ch-ua-mobile",
+              "value": "?0"
+            },
+            {
+              "name": "sec-ch-ua-platform",
+              "value": "\"macOS\""
+            },
+            {
+              "name": "Cookie",
+              "value": "AladdinUser=UID=-1450382424&SID=eKecJ8tLfPU8Onv5VmNIoQ%3d%3d; AladdinSession=UID=-1450382424&SID=eKecJ8tLfPU8Onv5VmNIoQ%3d%3d; CheckSameSite4=IsValidSameSiteSet; ASP.NET_SessionId=dr30o3fdwlnba044g1dtr0m2; AladdinUS=RGjkYrcv%2fBwg2aoKsO%2bVNw%3d%3d&USA=0; QsSNSLoginCookies=returnurl=https%3a%2f%2fwww.aladin.co.kr%2fttb%2fwblog_manage.aspx&snsAppId=1&SecureOpener=1; AladdinSite=Aladin; Aladin.AuthAdult=; AladdinLogin=RGjkYrcv%2fBwg2aoKsO%2bVNw%3d%3d; SaveEmail=IsSavedEmail=1; Supplier=SupplierId=kakuteeko%40naver.com&SupplierCode=191563&SupplierName=%ea%b3%bd%ec%a7%80%ed%98%b8&SupplierBranchType=6&SupplierShopCode=191563&ShopType=2; ala_qs_use=1; ala_w_t_event=hide; page_tracker=ptid=6; refererURL=https://www.aladin.co.kr/errormng/wnotfound.aspx"
+            },
+            {
+              "name": "cookie",
+              "value": "AladdinUser=UID=-1450382424&SID=eKecJ8tLfPU8Onv5VmNIoQ%3d%3d;AladdinSession=UID=-1450382424&SID=eKecJ8tLfPU8Onv5VmNIoQ%3d%3d;CheckSameSite4=IsValidSameSiteSet;ASP.NET_SessionId=dr30o3fdwlnba044g1dtr0m2;AladdinUS=RGjkYrcv%2fBwg2aoKsO%2bVNw%3d%3d&USA=0;QsSNSLoginCookies=returnurl=https%3a%2f%2fwww.aladin.co.kr%2fttb%2fwblog_manage.aspx&snsAppId=1&SecureOpener=1;AladdinSite=Aladin;Aladin.AuthAdult=;AladdinLogin=RGjkYrcv%2fBwg2aoKsO%2bVNw%3d%3d;SaveEmail=IsSavedEmail=1;Supplier=SupplierId=kakuteeko%40naver.com&SupplierCode=191563&SupplierName=%ea%b3%bd%ec%a7%80%ed%98%b8&SupplierBranchType=6&SupplierShopCode=191563&ShopType=2;ala_qs_use=1;ala_w_t_event=hide;page_tracker=ptid=6;refererURL=https://www.aladin.co.kr/errormng/wnotfound.aspx;"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        1376
+      ],
+      "id": "ad264155-b6e9-42d0-b5e4-ef26f18ed7df",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "comment",
+              "cssSelector": "div > a > span:nth-of-type(2)",
+              "returnArray": true
+            },
+            {
+              "key": "star",
+              "cssSelector": ".HL_star",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        1472
+      ],
+      "id": "ab6469c9-a810-4dce-9912-cbbfe47d8d01",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "reviews = []\nfor stars, comment in zip(_input.first().json.star, _input.first().json.comment):\n  reviews.append({\n    \"comment\": comment,\n    \"rating\": stars.count('icon_star_on')\n  })\n\n  \n\nreturn reviews"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        1472
+      ],
+      "id": "fcf56029-0e03-440b-b813-146e3372d9f8",
+      "name": "Parse"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8b1ece1f-f08e-4268-a049-7eb60505d115",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "등록된 100자평이 없습니다.",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        1376
+      ],
+      "id": "f9355b0a-6ede-4c02-982a-93c2df6cf624",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd95dab6-7a71-4760-a395-cd58d6ca2e5d",
+              "name": "result",
+              "value": "등록된 100자평이 없습니다.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        1280
+      ],
+      "id": "35c76954-096f-413a-80b1-991c4318c518",
+      "name": "Edit Fields4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "XML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "XML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "XML3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "XML4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML4": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Review": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ItemSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ItemList": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "usedItemList": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ItemLookUp": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ItemOffStoreList": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "b43515ab-d6ff-4bfe-955a-89456ace8266",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
+  },
+  "id": "aW121kXFA7o2A3Hr",
+  "tags": []
+}

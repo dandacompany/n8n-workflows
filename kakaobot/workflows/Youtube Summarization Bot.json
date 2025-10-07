@@ -1,0 +1,525 @@
+{
+  "name": "카톡봇 API -  Youtube Summarization Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "summarize-yt",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "b136f5c6-25bf-4c4e-9c54-92a0b9a4bced",
+      "name": "Webhook",
+      "webhookId": "70157ed0-7b5f-4cb8-9315-1e4491c3e3cc",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6F4mRvr7PitbK2EF",
+          "name": "My Test Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "google/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "google/gemini-2.5-flash"
+        },
+        "options": {}
+      },
+      "id": "ebc4228c-dfe8-4441-8635-63d5ab739716",
+      "name": "OpenAI GPT Summary Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1232,
+        96
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "openAiApi": {
+          "id": "kfHWoZ2KMTrQr52Z",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=당신은 “YouTube Video Summarizer”입니다.  \n아래에 제공된 유튜브 영상 자막 내용을 분석하여, 학습용으로 구조화된 요약을 생성하세요.  \n단순한 요약이 아니라, 교육자가 사용할 수 있을 정도로 **논리적이고 통찰적인 분석 요약문**을 작성해야 합니다.  \n\n--------\n\n### 🎯 작업 목표\n- 주어진 자막을 기반으로 **핵심 주제**, **핵심 개념**, **숫자 기반 인사이트**, **탐구형 질문**을 포함한 완전한 요약문을 작성합니다.  \n- 자막의 단어나 문장을 그대로 복사하지 말고, 내용을 재구성하고 해석해야 합니다.  \n- 작성 결과는 Markdown 형식으로 아래 템플릿에 따라 출력하세요.\n\n--------\n\n### ⚖️ 세부지침\n- 자막을 그대로 복사하지 말고, 반드시 해석과 요약을 수행합니다.  \n- 자막 외의 정보를 임의로 추가하지 않습니다.  \n- 비윤리적이거나 저작권이 제한된 내용은 처리하지 않습니다.\n- direct link의 형식은 다음 형식을 따릅니다. 타임스템프는 자막의 정보를 활용해서 초단위로 000s 형식으로 기입합니다. \n  ex) https://www.youtube.com/watch?v={{$json.videoID}}&t=11s\n- 전체재생시간(total_playback_time)과 재생구간(time_interval)의 시간 포매팅은 [mm:ss]으로 표기한다.\n- 전체요약은 다음 포인트를 중점으로 기술합니다.\n  1) 핵심 주제: 영상의 주요 아이디어를 요약합니다.\n  2) 핵심 내용: 가장 중요한 주장, 개념, 예시, 사례를 설명합니다.\n  3) 논리 전개: 영상이 어떤 논리나 근거를 통해 결론에 도달하는지 요약합니다.\n  4) 맥락 연결: 관련 배경, 인용, 개념적 확장 등을 기술합니다.\n- 데이터 기반 인사이트는 영상에서 언급된 수치, 비율, 통계, 연도 등을 찾아 그 수치가 의미하는 바를 해석합니다.  \n  ex) “전 세계 60%의 사용자가 ~한다 → 트렌드의 전환점임을 시사”\n- 탐구형 질문는 다음 관점에서 선정해서 생성합니다.\n  1) 영상의 핵심 주장에 대한 비판적 사고를 유도하는 질문  \n  2) 주제를 다른 맥락이나 분야로 확장할 수 있는 질문  \n  3) 실제 적용이나 한계를 탐구할 수 있는 질문  \n\n--------\n\n## 📄 출력 형식 (요약 템플릿)\n아래 형식에 맞춰 구간별 요약을 진행하며, 요약하는 방식은 요약 섹션의 가이드에 맞춰진행합니다.\n\n---\n1. 제목 : { title }\n3. 전체 재생시간 : { total_playback_time }\n2. 전체요약\n  { total_summary }\n \n3. 구간별 요약\n - 구간1: {interval1_title}  (⏱️{time_interval1})\n {interval1_concise_summary}\n [바로가기] {direct_url_link1}\n \n - 구간2: {interval2_title}  (⏱️{time_interval2})\n {interval2_concise_summary}\n [바로가기] {direct_url_link2}\n\n - 구간3: {interval3_title}  (⏱️{time_interval3})\n {interval3_concise_summary}\n [바로가기] {direct_url_link3}\n  ...\n\n--------\n\n### 출력 예시\n\n1. 제목:\n유튜브 알고리즘 대개편 논란: 추천 시스템의 변화와 창작자 수익 구조, 개선 예고의 불투명성\n\n2. 전체 재생시간: [03:45]\n\n3. 전체요약\n\n🎯 핵심 주제: 유튜브의 알고리즘 대개편이 초래한 추천 불균형, 수익 구조의 편향, 창작자 신뢰 위기\n💡 핵심 내용\n - 시청 지속시간 중심의 알고리즘 변경 → 쇼츠(Shorts) 우대 현상\n - 장기 콘텐츠 창작자들의 노출 감소 및 수익 하락\n - 광고 효율 중심 정책으로 콘텐츠 다양성 약화\n - 커뮤니티의 불신 및 투명성 요구 확산\n - 유튜브 측의 개선 약속은 있었지만 구체적 시기 미정\n\n🔍 논리 전개\n - 플랫폼의 기술적 의도(시청 효율 향상)와 실제 결과(콘텐츠 다양성 약화) 사이의 괴리를 중심으로 서술.\n창작자들의 반발 → 커뮤니티 여론 → 플랫폼의 대응 흐름 순으로 논리 전개.\n\n🧩 맥락 연결\n - 알고리즘 의존형 플랫폼의 본질적 한계와 창작 생태계 불균형 문제를 보여줌.\n - 광고 중심 모델이 창작자 다양성과 품질 유지에 미치는 영향을 시사.\n - 향후 ‘플랫폼 책임성’ 논의의 주요 사례로 남을 가능성을 강조.\n\n🔢 숫자 기반 인사이트\n - 알고리즘 변경 이후 장기 영상 평균 노출률 35% 감소,\n - 쇼츠 평균 광고 수익률 1.7배 증가라는 수치가 제시됨.\n - “개선 중”이라는 공식 입장은 발표되었으나 일정 미공개 → 투명성 부재 문제로 커뮤니티 불만이 지속.\n - 창작자 이탈률 증가(최근 3개월간 신규 업로드 감소율 22%) → 생태계 건강성 약화로 해석 가능.\n\n🧠 탐구형 질문\n - E1: 알고리즘의 변화가 창작자 수익 구조에 미친 영향을 어떻게 정량적으로 분석할 수 있을까요?\n그리고 공정한 노출 시스템을 구현하기 위해 필요한 데이터 공개 수준은 어느 정도여야 할까요?\n - E2: 플랫폼의 알고리즘 투명성을 강화하면서도 악용(예: 클릭 유도 콘텐츠)을 방지하기 위한\n설계적 균형은 어떻게 확보할 수 있을까요?\n- E3: 장기 콘텐츠의 경쟁력 회복을 위해 유튜브는 어떤 전략적 보완책(예: 분리된 추천 탭, 가중치 조정)을\n시도할 수 있을까요?\n\n4. 구간별 요약\n - 구간1: 알고리즘 변경의 핵심과 초기 반응 (⏱️[00:01–01:20])\n새로운 추천 시스템은 사용자의 시청시간과 클릭 유지율을 핵심 지표로 삼도록 개편되었습니다.\n그 결과 짧은 영상(Shorts) 콘텐츠가 급격히 상위 노출되었고,\n장시간 콘텐츠를 제작하던 교육·다큐 채널의 노출 빈도가 급감했습니다.\n일부 창작자는 기존 구독자에게조차 콘텐츠가 도달하지 않는 현상을 호소했습니다.\n[바로가기] https://www.youtube.com/watch?v={{ $json.videoID }}&t=80s\n\n - 구간2: 광고 및 수익 구조의 문제와 커뮤니티 반발 (⏱️[01:21–02:50])\n...\n[바로가기] https://www.youtube.com/watch?v={{ $json.videoID }}&t=170s\n\n - 구간3: 플랫폼 대응과 개선 예고, 그러나 불투명한 일정 (⏱️[02:51–03:45])\n...\n[바로가기] https://www.youtube.com/watch?v={{ $json.videoID }}&t=171s\n\n\n--------\n\n## 🧾 입력 데이터 (자막)\n\n다음은 분석해야 할 유튜브 영상 자막입니다.  \n이 자막을 기반으로 위의 형식에 따라 요약을 작성하세요.\n\n{{ $json.data.toJsonString() }}\n\n\n",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1216,
+        -128
+      ],
+      "id": "503fc5ff-1743-44e8-8919-3cbcff5c9360",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "query": "SELECT input1.*, input2.* FROM input1 LEFT JOIN input2 ON input1.name = input2.id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        992,
+        -128
+      ],
+      "id": "8cab0548-daca-40ac-be82-e6665cca5cac",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"summary\": \"....\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        96
+      ],
+      "id": "d7eafd1d-fa41-4899-ad17-20345d0cf004",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/videos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "snippet"
+            },
+            {
+              "name": "id",
+              "value": "={{ $('Webhook').item.json.body.videoID }}"
+            },
+            {
+              "name": "key",
+              "value": "AIzaSyAG1SDMCEWv-kaphCAVbHhHZP5kXdXZf_w"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dfa114b9-6753-48e6-83b7-f1448fa2413f",
+      "name": "Fetch Video Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        544,
+        -224
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "hJro5bMtUr0ILG45",
+          "mode": "list",
+          "cachedResultName": "youtube-summary",
+          "cachedResultUrl": "/projects/YJYOSJbzRwOJAV60/datatables/hJro5bMtUr0ILG45"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "summary": "={{ $json.summary }}",
+            "videoID": "={{ $('Webhook').item.json.body.videoID }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "videoID",
+              "displayName": "videoID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        -224
+      ],
+      "id": "b043d129-2fc7-4d38-b42c-b39fb6027bac",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b390af71-e7d5-4b7d-8bf3-13f7740737a4",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        -32
+      ],
+      "id": "e86c4bf6-4813-4194-ba6f-3910bf514fe6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "hJro5bMtUr0ILG45",
+          "mode": "list",
+          "cachedResultName": "youtube-summary",
+          "cachedResultUrl": "/projects/YJYOSJbzRwOJAV60/datatables/hJro5bMtUr0ILG45"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "videoID",
+              "keyValue": "={{ $json.body.videoID }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "b4e13704-4f93-4e1b-8c15-0360133e9626",
+      "name": "Get row(s)",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/faVsWy9VTSNVIhWpR/run-sync-get-dataset-items",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "videoUrl",
+              "value": "=https://www.youtube.com/watch?v={{ $('Webhook').item.json.body.videoID }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        -32
+      ],
+      "id": "22aa2e90-ef2b-410f-94e7-b78144ba90ff",
+      "name": "APIFY RUN",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "rNuuujzJ4suSSJws",
+          "name": "apify Query Auth account"
+        },
+        "apifyApi": {
+          "id": "bvZhYD8peuzfpKDX",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0c2bcaa-fb75-47da-89e0-894ef8b96142",
+              "name": "title",
+              "value": "={{ $json.items[0].snippet.title }}",
+              "type": "string"
+            },
+            {
+              "id": "870c4cf3-f220-432a-a300-830a1349bae1",
+              "name": "description",
+              "value": "={{ $json.items[0].snippet.description }}",
+              "type": "string"
+            },
+            {
+              "id": "c856e1cc-482c-4178-901a-2c700c0884f5",
+              "name": "thumbnail",
+              "value": "={{ $json.items[0].snippet.thumbnails.default.url }}",
+              "type": "string"
+            },
+            {
+              "id": "a5d393c6-03aa-4d3b-b9f3-f5ff90b88e51",
+              "name": "videoID",
+              "value": "={{ $json.items[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "bd8c6873-c6a9-4666-a887-a71d18cac52d",
+              "name": "tags",
+              "value": "={{ $json.items[0].snippet.tags }}",
+              "type": "array"
+            },
+            {
+              "id": "49ab9c26-a3ca-4d41-bb18-ccc8275fb333",
+              "name": "channelTitle",
+              "value": "={{ $json.items[0].snippet.channelTitle }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        -224
+      ],
+      "id": "2afbc5e6-31f4-4a33-9339-9b0e169ce0b9",
+      "name": "Set Variables"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3d9ce442-b968-412a-a7b8-79f7ea5aa053",
+              "name": "summary",
+              "value": "={{ $json.output.summary }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        -128
+      ],
+      "id": "991da28a-5274-4e09-acf3-56a4b5ab65fc",
+      "name": "Set Summary"
+    },
+    {
+      "parameters": {
+        "enableResponseOutput": true,
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1792,
+        -32
+      ],
+      "id": "f4e73dd3-db06-4c20-a3a8-3bc2f7d3f9ec",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT Summary Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Set Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Video Details": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Fetch Video Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "APIFY RUN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "APIFY RUN": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Summary": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c7e9a95f-77a1-4aec-bbc1-174086a914ce",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
+  },
+  "id": "sCNbeDfvwmsr02nd",
+  "tags": []
+}

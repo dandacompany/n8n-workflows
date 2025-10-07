@@ -1,0 +1,731 @@
+{
+  "name": "카톡봇 API -  Gemini Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gemini",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        128
+      ],
+      "id": "22a51923-4e5f-4a9a-a160-3f25ecfc361e",
+      "name": "Webhook",
+      "webhookId": "cf872ff8-a86e-4b32-8e85-c3998b278505",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6F4mRvr7PitbK2EF",
+          "name": "My Test Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        352
+      ],
+      "id": "c756ba72-37f5-4907-8c6f-413e2672d161",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "J4xugzixE4qVJ5lk",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "bdc19f67-be59-49ef-91ec-0cfcb883c018",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -448,
+        -304
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS public.chat_memory (\n  id SERIAL PRIMARY KEY,\n  session_id VARCHAR(255) NOT NULL,\n  message TEXT DEFAULT 'Could not get data'\n) TABLESPACE pg_default;\n\nCREATE INDEX IF NOT EXISTS chat_memory_session_id_idx \nON public.chat_memory USING btree (session_id) \nTABLESPACE pg_default;\n",
+        "options": {}
+      },
+      "id": "ed575cc0-bccf-49e0-b305-cbffcd6a885d",
+      "name": "Create Chat Memory Table",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -224,
+        -304
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "CP0muM23ao4aIX47",
+          "name": "n8n postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chat_memory",
+          "cachedResultName": "chat_memory"
+        },
+        "limit": 25,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $json.userName }}"
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "id",
+              "direction": "DESC"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92091a2a-d8df-45a5-b7c6-fc4071a8ad5b",
+      "name": "Get Chat Memory",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        0,
+        128
+      ],
+      "typeVersion": 2.6,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "CP0muM23ao4aIX47",
+          "name": "n8n postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f11f9eea-1274-49aa-9886-950351a4034f",
+              "name": "=message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "bccd4782-b802-4965-94ed-d2db858b7269",
+              "name": "userName",
+              "value": "={{ $json.body.sender }}",
+              "type": "string"
+            },
+            {
+              "id": "bfe7e7c4-ab50-470d-bce0-36dd7676a8d0",
+              "name": "tempSessionID",
+              "value": "={{ Math.random().toString(36).substring(2, 12) }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        128
+      ],
+      "id": "f3c77c66-2907-4d28-92d4-b94042d1ba0f",
+      "name": "Set Variables"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c919456b-5703-487d-bf04-9e5208d92da4",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        224,
+        128
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"difficulty\": {\n      \"type\": \"integer\",\n      \"enum\": [1, 2, 3]\n    },\n    \"context\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\"difficulty\", \"context\"]\n}\n"
+      },
+      "id": "79d4b475-cf29-4712-b658-31177b2954e5",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        592,
+        352
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "id": "49a6ae85-c1ff-41f5-b53c-7ab623b70b96",
+      "name": "Google Gemini 2.5 Flash Lite",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        464,
+        352
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZEa0FOrXM9016Vdd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Chat Memory: {{ $('Aggregate').item.json.message.join('\\n') }}\n\nUser Request: {{ $('Set Variables').item.json.message }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=사용자의 요청과 채팅 기록을 분석하는 시스템입니다.\n\n## 목표:\n1. 현재 사용자 요청과 관련된 맥락만 추려 채팅 기록을 요약합니다.\n2. 요청의 난이도를 판단합니다:\n   - 1: 매우 간단함 (짧은 답변, 알림, 기본 작업).\n   - 2: 중간 (일부 추론, 구조화된 출력, 정보 결합).\n   - 3: 복잡함 (다단계 추론, 모호한 질의, 코딩 수준의 추론).\n\n## 출력 형식:\n다음 스키마를 엄격히 준수하여 JSON을 반환해야 합니다:\n\n{\n  \"difficulty\": 1 | 2 | 3,\n  \"context\": \"string - 관련 기록 요약\"\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "00ce5657-dda5-4f65-a632-7a3574210b0c",
+      "name": "Summarize & Categorize",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        448,
+        128
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "numberInputs": 3,
+        "rules": {
+          "rule": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "976d83bb-7e9e-4aab-9722-25a9e238164f",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.difficulty }}",
+                    "rightValue": 1
+                  }
+                ]
+              }
+            },
+            {
+              "modelIndex": 2,
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "1e68688d-73fe-47c1-9b35-a1e226220bcd",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.difficulty }}",
+                    "rightValue": 2
+                  }
+                ]
+              }
+            },
+            {
+              "modelIndex": 3,
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "61d58197-db59-4cd7-bc41-bbeaf5e7b069",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.difficulty }}",
+                    "rightValue": 3
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "3bb44b08-0de7-4334-aa07-df5a00fdef11",
+      "name": "Model Selector",
+      "type": "@n8n/n8n-nodes-langchain.modelSelector",
+      "position": [
+        800,
+        352
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "id": "da4eb6af-aa64-4988-9ee2-5ac8b421fdbc",
+      "name": "Gemini 2.5 Flash Lite",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        816,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZEa0FOrXM9016Vdd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "61ff4974-3f3c-44f9-bd16-ed8b13d6e422",
+      "name": "Gemini 2.5 Flash",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        944,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZEa0FOrXM9016Vdd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "id": "ac445fbc-16ce-490f-a2f1-1588099811ed",
+      "name": "Gemini 2.5 Pro",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1072,
+        560
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZEa0FOrXM9016Vdd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Set Variables').item.json.message }}",
+        "options": {
+          "systemMessage": "=## 페르소나 / 목표\n당신은 사용자의 요청을 아래 주어진 이전 대화 맥락에 따라 적절한 응답을 제공하는 유능한 어시스턴트입니다.\n\n## 세부지침\n- 사용자가 요구하는 정보가 최신정보나 전문지식에 근거해서 답변을 해야하는 경우, SerpApi 와 Perplexity를 사용하여 웹검색 정보를 활용하여 대답을 해야합니다.\n- SerpApi로 1회 검색후, 만족할만한 결과가 나오면 검색을 중단후 응답을 생성하고, 만족스럽지 못할 경후, 검색요청 내용을 변경해서 한번더 검색한 후, 만족스럽지 못한 경우에는 Perplexity로 동일하게 최대 2회까지 검색하여 응답을 생성합니다.\n- 정보가 부족하거나 알지 못하는 내용에 대해 억지로 대답하지 말고, 답변을 드리지 못하는 점에 대한 양해를 구합니다.\n- 전문적인 식견과 객관적인 정보를 토대로 응답해야 합니다.\n- 사용자의 이름 \"{{$('Set Variables').item.json.userName}}\"을 기억하고 필요할때, ~님 으로 존칭으로 호명하며 대답하세요.\n- 마크다운 서식을 사용하지말고 Plain Text를 기본으로 사용하고, 줄바꿈과 글머리기호, 특수문자, 이모지를 적절히 사용하세요.\n\n\n## 이전 대화 맥락\n{{ $json.output.context }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "id": "35f4b866-1376-4b37-8e34-df4a419777d8",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1088,
+        128
+      ],
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "chat_memory",
+          "cachedResultName": "chat_memory"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "=User:  {{ $('Set Variables').item.json.message.replaceAll('/gemini ', '') }}\nAgent:  {{ $json.output }}\n",
+            "session_id": "={{ $('Set Variables').item.json.userName }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "type": "string",
+              "display": true,
+              "required": true,
+              "displayName": "session_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c8c17438-5504-4855-b511-a31ce2071150",
+      "name": "Update Chat Memory (User and Agent)",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1440,
+        224
+      ],
+      "typeVersion": 2.6,
+      "credentials": {
+        "postgres": {
+          "id": "CP0muM23ao4aIX47",
+          "name": "n8n postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Set Variables').item.json.tempSessionID }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1088,
+        352
+      ],
+      "id": "508ddf2d-386a-492f-a193-0d39a119c1b3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "enableResponseOutput": true,
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1440,
+        32
+      ],
+      "id": "a43937f4-e54e-4c58-a3a1-d4e9a878bd5b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', `검색 요청할 내용`, 'string') }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        352
+      ],
+      "id": "54612205-8ac7-4e67-86a4-4eebe9808fac",
+      "name": "Perplexity",
+      "credentials": {
+        "perplexityApi": {
+          "id": "4GfNe5qS92Gqgv2U",
+          "name": "Perplexity account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Create Chat Memory Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Get Chat Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Chat Memory": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Summarize & Categorize",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini 2.5 Flash Lite": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize & Categorize",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Summarize & Categorize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Selector": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash Lite": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Model Selector",
+            "type": "ai_languageModel",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Agent": {
+      "main": [
+        [
+          {
+            "node": "Update Chat Memory (User and Agent)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize & Categorize": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "39fa7040-0e94-4163-8f04-2e49706eb4c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
+  },
+  "id": "e3xe0NFNlAgWxAbP",
+  "tags": []
+}

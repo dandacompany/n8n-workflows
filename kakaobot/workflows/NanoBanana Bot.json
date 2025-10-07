@@ -1,0 +1,931 @@
+{
+  "name": "카톡봇 API - NanoBanana Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "enableResponseOutput": true,
+        "respondWith": "json",
+        "responseBody": "={\n  \"page\": \"https://n8n.dante-datalab.com/webhook/preview-image?src={{ $json.imageUrl }}&title={{ $('Information Extractor').item.json.output.title }}_{{ $('Information Extractor').item.json.output.timestamp }}\",\n  \"image\" : \"{{ $json.imageUrl }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1632,
+        736
+      ],
+      "id": "ff710704-838b-480e-a7de-204736922782",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nanobanana",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        592
+      ],
+      "id": "e5d212d1-aa31-4718-b12a-9831b7342c5c",
+      "name": "Webhook",
+      "webhookId": "836ffb3b-c851-4409-9dad-a16db0c6b59c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "6F4mRvr7PitbK2EF",
+          "name": "My Test Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "google/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "google/gemini-2.5-flash-lite"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        816
+      ],
+      "id": "3a88ee41-facf-4d88-881c-87ec8d9da9c9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "kfHWoZ2KMTrQr52Z",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=- 요청내용 : {{ $json.body.text.replaceAll('/nano ', '') }}\n- 요청시간 : {{ $json.body.timestamp }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "imageUrls",
+              "description": "=수정 요청한 원본 URL (1개 이상, 쉼표로 구분) \n(e.g. http://example.com/image1.jpg,http://example.com/image2.jpg)",
+              "required": true
+            },
+            {
+              "name": "requestMessage",
+              "description": "수정 요청 메세지 내용",
+              "required": true
+            },
+            {
+              "name": "title",
+              "description": "요청 제목 (10자 미만)",
+              "required": true
+            },
+            {
+              "name": "timestamp",
+              "type": "number",
+              "description": "=yyyyMMddHHmmss 로 포매팅된 날짜값"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.\n\n원본 url을 수정하지 말고 그대로 파싱할것."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        592
+      ],
+      "id": "49e0c5cb-d119-47b5-bcb2-0046f0b7a81b",
+      "name": "Information Extractor",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "path": "preview-image",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        288,
+        1376
+      ],
+      "id": "d35b50fe-3813-4f98-8130-c786e3412382",
+      "name": "Webhook1",
+      "webhookId": "7d7afbd9-61e3-4c85-89d5-fb494c5c471c"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <!-- Open Graph META -->\n    <meta property=\"og:type\" content=\"website\">\n    <meta property=\"og:title\" content=\"{{ $json.query.title }} 결과 이미지\">\n    <meta property=\"og:description\" content=\"이미지 미리보기\">\n    <meta property=\"og:image\" content=\"{{$json.query.src}}\">\n    <meta property=\"og:image:width\" content=\"1200\">\n    <meta property=\"og:image:height\" content=\"630\">\n    <meta property=\"og:url\" content=\"{{$json.query.src}}\">\n    <style>\n        html, body {\n            margin: 0; padding: 0; height: 100%; background: #000;\n        }\n        .full-img {\n            display: block; width: 100vw; height: auto; max-height: 100vh; object-fit: contain; background: #000;\n        }\n    </style>\n</head>\n<body>\n    <img\n        class=\"full-img\"\n        src=\"{{$json.query.src}}\"\n        alt=\"{{ $json.query.title }}\"\n        title=\"이미지 다운로드\" />\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        512,
+        1376
+      ],
+      "id": "1c323b1d-e9f6-493d-8ecf-01783ed674a7",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/predictions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "wait"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"version\": \"google/nano-banana\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.requestMessage }}\",\n    \"image_input\": [{{ $json.output.imageUrls.split(',').map(e=> `\"${e}\"`) }}]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1120
+      ],
+      "id": "a5512808-3d97-483a-94c8-f32f69dce00f",
+      "name": "NanoBanana",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "lgKZeS8dwKGgOyNT",
+          "name": "Replicate Auth account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a5495311-4aaf-40d9-82ac-eda421394a41",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        736
+      ],
+      "id": "4ec2d7df-9c9b-433d-a839-2cfb2502fbcb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        928
+      ],
+      "id": "7eccd14d-5a23-4da9-a19b-df6c2a6bbd6c",
+      "name": "Wait",
+      "webhookId": "9adf59cb-2337-4ef3-ae8f-eb99ad46484b"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        960,
+        256
+      ],
+      "id": "d973700a-c48e-48ce-a86a-cb83bb19d768",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "N8Rf0BdY5jAfIdzv",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        256
+      ],
+      "id": "fca84823-483f-4140-9710-9610b9885836",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiration",
+              "value": "600"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "value": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1408,
+        256
+      ],
+      "id": "455424c0-7a8d-491b-8366-aed9d59db852",
+      "name": "imgbb",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "j9sXQdyYiQEHCGYF",
+          "name": "Upstage Bearer Auth"
+        },
+        "httpQueryAuth": {
+          "id": "8Q9xrE5kEBJlO0pI",
+          "name": "imgbb.com Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.url.trim() }}",
+                    "rightValue": "https://drive.google.com/file/d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "cd2ce76d-de6e-4fd2-89ae-48f09e33044c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "googleDriveFile"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e61ea1d-6444-4fa3-af94-4ca353693598",
+                    "leftValue": "={{ $json.url.trim() }}",
+                    "rightValue": "https?:\\/\\/\\S+\\.(?:jpe?g|png|gif|bmp|webp|svg|avif|heic|heif)(?:\\?\\S*)?",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "regularImageFile"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        736,
+        304
+      ],
+      "id": "ada76472-930e-46ea-9b08-fb554479689f",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        512,
+        304
+      ],
+      "id": "87507550-b842-4adf-ae4b-48689f17f00d",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "bdzm3FXWsYzy6NxA",
+          "mode": "list",
+          "cachedResultName": "temp-images",
+          "cachedResultUrl": "/projects/YJYOSJbzRwOJAV60/datatables/bdzm3FXWsYzy6NxA"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        304
+      ],
+      "id": "0da91b37-b91c-4aaf-9d7a-cc82e9883da3",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "bdzm3FXWsYzy6NxA",
+          "mode": "list",
+          "cachedResultName": "temp-images",
+          "cachedResultUrl": "/projects/YJYOSJbzRwOJAV60/datatables/bdzm3FXWsYzy6NxA"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        288,
+        832
+      ],
+      "id": "5f5a06b8-62b6-47e7-aff9-299907f22e64",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "append",
+              "field": "url"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        832
+      ],
+      "id": "28516ffe-c499-4239-8eb0-ce62821efe2c",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/nano-banana-edit\",\n  \"input\": {\n    \"prompt\": \"{{ $('Information Extractor').item.json.output.requestMessage }}\",\n    \"image_urls\": [\n      {{$json.appended_url.map(e => `\"${e}\"`)}}\n    ],\n    \"output_format\": \"png\",\n    \"image_size\": \"1:1\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        832
+      ],
+      "id": "56f65542-ddb8-440e-8012-a03c5a892ed5",
+      "name": "NanoBanana API",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "m2XXwdKQS7a0ot9k",
+          "name": "KIE.ai Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "bdzm3FXWsYzy6NxA",
+          "mode": "list",
+          "cachedResultName": "temp-images",
+          "cachedResultUrl": "/projects/YJYOSJbzRwOJAV60/datatables/bdzm3FXWsYzy6NxA"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "condition": "neq",
+              "keyValue": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        544
+      ],
+      "id": "d2a169dd-a65d-4561-ac3d-86fa06a17e14",
+      "name": "Delete row(s)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfdf2802-f15c-4bde-b108-ed7e15df8c83",
+              "name": "imageUrl",
+              "value": "={{ JSON.parse($json.data.resultJson).resultUrls.first() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1408,
+        736
+      ],
+      "id": "3f4698bd-d34e-490c-96ad-efcd4ebc312d",
+      "name": "Set Image Url"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d7e2dc8-3b27-4ae9-9514-be7791c848fb",
+              "name": "url",
+              "value": "={{ $json.output.imageUrls.split(\",\") }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        304
+      ],
+      "id": "c35a56af-6e38-4301-8aa2-0cba85952c28",
+      "name": "Set Urls"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "707c9dc1-0796-4f03-8df4-921067782390",
+              "name": "url",
+              "value": "={{ $json.data?.url ?? $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        304
+      ],
+      "id": "60d020a2-887c-47af-9619-d33696ef5e78",
+      "name": "Set Url"
+    },
+    {
+      "parameters": {
+        "content": "# 이미지 합성",
+        "height": 672,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        496
+      ],
+      "typeVersion": 1,
+      "id": "1a8d4eec-2a08-4c45-967a-c9096c8bd6f3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# 사용자 요청 처리",
+        "height": 304,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "3173f6e8-be2b-4bb3-985b-54676fccf4b8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# 미리보기 화면 구성",
+        "height": 352,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        1200
+      ],
+      "typeVersion": 1,
+      "id": "747a32c2-9983-4fde-b0ee-8a1a0a6934f5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        832
+      ],
+      "id": "2975cae7-dbe5-4bb9-813b-4d5d463b131c",
+      "name": "CheckStatus",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "m2XXwdKQS7a0ot9k",
+          "name": "KIE.ai Bearer Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Set Urls",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NanoBanana": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Delete row(s)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Image Url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "CheckStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "imgbb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imgbb": {
+      "main": [
+        [
+          {
+            "node": "Set Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "NanoBanana API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NanoBanana API": {
+      "main": [
+        [
+          {
+            "node": "CheckStatus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Image Url": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Urls": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Url": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckStatus": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "54f7444f-c7d3-421f-9b1e-3fadbe6a3e8e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3fdaaf60e2c627d3c0a8ba075e3815e24ea9d8307dd24a904e5c8d8daa0cf76"
+  },
+  "id": "ctNygXQ6vEMgzbNW",
+  "tags": []
+}
