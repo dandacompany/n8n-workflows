@@ -60,7 +60,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var code = resp.statusCode();
             var body = JSON.parse(resp.body());
             if (code === 200) {
-                replier.reply(body);
+                replier.reply(body.summary);
             } else {
                 replier.reply("❌ 서버 오류: HTTP " + code + "\n" + String(resp.body).slice(0, 300));
             }
